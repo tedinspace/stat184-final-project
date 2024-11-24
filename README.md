@@ -8,7 +8,13 @@
 
 2. activate environment 
 
+
 `micromamba activate 184-final-project`
+
+
+Note: sometimes I need to run the following command prior to reactivating
+
+`eval "$(micromamba shell hook --shell zsh)"`
 
 3. install dependencies 
 
