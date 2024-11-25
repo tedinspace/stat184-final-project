@@ -1,7 +1,34 @@
 from skyfield.api import Topos, load, wgs84, EarthSatellite
 from sgp4.api import Satrec, WGS84
 from sgp4.ext import rv2coe
+import math
 
+
+# *    p           - semilatus rectum               km
+# *    a           - semimajor axis                 km
+# *    ecc         - eccentricity
+# *    incl        - inclination                    0.0  to pi rad
+# *    omega       - longitude of ascending node    0.0  to 2pi rad
+# *    argp        - argument of perigee            0.0  to 2pi rad
+# *    nu          - true anomaly                   0.0  to 2pi rad
+# *    m           - mean anomaly                   0.0  to 2pi rad
+# *    arglat      - argument of latitude      (ci) 0.0  to 2pi rad
+# *    truelon     - true longitude            (ce) 0.0  to 2pi rad
+# *    lonper      - longitude of periapsis    (ee) 0.0  to 2pi rad
+
+# Line 1 contains:
+
+# Satellite number
+# Classification (usually "U" for unclassified)
+# International launch date (year and number)
+# Orbital parameters (inclination, RAAN, eccentricity, argument of perigee, mean anomaly, mean motion)
+# First derivatives of mean motion and inclination
+# Ephemeris type
+# Line 2 contains:
+
+# Satellite number
+# Orbital parameters (including orbital inclination, RAAN, eccentricity, argument of perigee, mean anomaly, and mean motion)
+# Epoch time
 
 import numpy as np
 

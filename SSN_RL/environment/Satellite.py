@@ -1,6 +1,8 @@
 from skyfield.api import EarthSatellite
-from utils.time import m2frac
-
+from utils.time import m2frac, t2doy
+from sgp4.ext import rv2coe
+from utils.astrodynamics import mu, overrideStr, computeMeanMotion
+import math
 
 class Satellite: 
     def __init__(self,name, l1, l2, sConfigs):
@@ -37,18 +39,38 @@ class Satellite:
         self.maneuverList = sorted(maneuverList, key=lambda x: x.time)
 
     def reestimateTrueState(self, maneuver, t):
-        # > TODO THIS DOESN'T WORK YET
         # > save previous active state for debugging
         self.activeStateRecord.append(self.activeObject)
-        print(self.activeObject)
-        print(self.activeObject.at(maneuver.time).velocity.m_per_s)
-        print(maneuver.maneuver)
-        currStateAtManeuverTime = self.activeObject.at(maneuver.time)
-        self.activeObject.epoch = maneuver.time
-        self.activeObject.position.km = currStateAtManeuverTime.position.km
-        print()
-        # > add the instantaneous velocity chance to the maneuver
-        self.activeObject.at(maneuver.time).velocity.m_per_s += maneuver.maneuver
+        # > get pre-maneuver pos at instant of maneuver
+        X_at_man = self.activeObject.at(maneuver.time)
+        # > get orbital elemnts post-maneuver
+        p, a, ecc, incl, omega, argp, nu, m, arglat, truelon, lonper = rv2coe(X_at_man.position.km, X_at_man.velocity.km_per_s+maneuver.maneuver/1000, mu)
+        # > override line 1
+        l1 = self.l1 
+        year, doy, fraction_of_day = t2doy(maneuver.time)
+        doy = doy+fraction_of_day
+        # - year
+        l1 = overrideStr(l1, int(str(year)[2:4]), 18, 20)
+        l1 = overrideStr(l1, doy, 20, 32)
+        # > over ride line2
+        l2 = self.l2
+        # - inclination
+        l2 = overrideStr(l2, math.degrees(incl), 8, 16)
+        # - RAAN 
+        l2 = overrideStr(l2, math.degrees(omega), 17, 25)
+        # - eccentricity 
+        l2 = overrideStr(l2, str(ecc).replace('0.',''), 26, 33)
+        # - argument of perigee (degrees)
+        l2 = overrideStr(l2, math.degrees(argp),34, 42)
+        # - mean anom 
+        l2 = overrideStr(l2, math.degrees(m),43, 51)
+        # - mean motion
+        l2 = overrideStr(l2, computeMeanMotion(a),52, 63)
+
+        self.activeObject = EarthSatellite(l1, l2, self.name, self.timeScale)
+
+        #X = self.activeObject.at(t)
+        #maneuver.stop
 
 
 

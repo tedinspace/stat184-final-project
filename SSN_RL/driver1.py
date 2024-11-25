@@ -13,7 +13,7 @@ muos1 = MUOS_CLUSTER[0]
 
 S1 = Satellite(muos1[0], muos1[1], muos1[2], sConfigs )
 S1.reEpoch_init(60)
-S1.addManeuvers([Maneuver(1135.1, 1.5, sConfigs), Maneuver(15.3, 4.15, sConfigs)])
+S1.addManeuvers([Maneuver(10, 1.5, sConfigs), Maneuver(15.3, 4.15, sConfigs)])
 
 
 lat = []
@@ -26,7 +26,6 @@ alt_no = []
 
 time = []
 cTime = sConfigs.scenarioEpoch
-i = 0
 while cTime < sConfigs.scenarioEnd:
     # 1. everything needs to move forward to the current time 
     X1 = S1.tick(cTime)
@@ -41,8 +40,7 @@ while cTime < sConfigs.scenarioEnd:
     lat.append(sb.latitude.degrees)
     lon.append(sb.longitude.degrees)
     alt.append(sb.elevation.km)
-    i+=1
-    time.append(i)
+    time.append(cTime.tt)
     # 2. translate knowable states to agents
     
     # 3. get agent's responses
@@ -55,14 +53,12 @@ while cTime < sConfigs.scenarioEnd:
 
 plt.figure(figsize=(10, 6))
 
-# Plot latitude, longitude, and altitude
-plt.plot(time, lat, label="Latitude (°)", color='b', marker='o')
-#plt.plot(time, lon, label="Longitude (°)", color='g', marker='x')
-plt.plot(time, lat_no, label="Latitude (°) - no", color='r', marker='o')
-#plt.plot(time, lon_no, label="Longitude (°) - no", color='r', marker='x')
-#plt.plot(time, alt, label="Altitude (km)", color='r', marker='^')
+plt.plot(time, lat_no, label="Latitude (°) - no", color='g', marker='o')
+plt.plot(time, lon_no, label="Longitude (°) - no", color='g', marker='x')
+plt.plot(time, lat, label="Latitude (°)", color='r', marker='o')
+plt.plot(time, lon, label="Longitude (°)", color='r', marker='x')
 
-# Format the plot
+
 plt.xlabel('Time (UTC)', fontsize=12)
 plt.ylabel('Value', fontsize=12)
 plt.title('Satellite Position over Time', fontsize=14)
@@ -70,16 +66,7 @@ plt.legend()
 
 plt.show()
 
-#epoch = sConfigs.scenarioEpoch
-#cadence = 30 / (24 * 3600)  
+plt.plot(time, alt, label="Altitude (km)", color='g', marker='^')
+plt.plot(time, alt_no, label="Altitude (km) -no", color='r', marker='^')
 
-
-#time_array = [epoch + i * cadence for i in range(10)]
-
-# Print the times
-#for t in time_array:
-#    print(t.utc_iso())
-
-
-#print((time_array[1]-time_array[0])*SPD)
-
+plt.show()
