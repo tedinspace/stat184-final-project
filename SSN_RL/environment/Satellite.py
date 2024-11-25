@@ -1,8 +1,9 @@
 from skyfield.api import EarthSatellite
-from utils.time import m2frac, t2doy
 from sgp4.ext import rv2coe
-from utils.astrodynamics import mu, overrideStr, computeMeanMotion
 import math
+from SSN_RL.utils.astrodynamics import mu, overrideStr, computeMeanMotion
+from SSN_RL.utils.time import m2frac, t2doy
+
 
 class Satellite: 
     def __init__(self,name, l1, l2, sConfigs):

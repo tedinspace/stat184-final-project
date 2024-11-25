@@ -1,4 +1,4 @@
-from .SensorModality import SensorModality
+from SSN_RL.environment.SensorModality import SensorModality
 from skyfield.api import wgs84, load
 
 solar_ephem = load('de421.bsp')

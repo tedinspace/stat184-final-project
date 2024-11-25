@@ -20,6 +20,11 @@ Note: sometimes I need to run the following command prior to reactivating
 
 `pip install -r requirements.txt`
 
+## running files
+
+
+`python -m tests.basic-maneuver-sim.py`
+
 
 ## Library Documentation 
 

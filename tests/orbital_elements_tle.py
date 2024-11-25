@@ -1,5 +1,4 @@
-from skyfield.api import Topos, load, wgs84, EarthSatellite
-from sgp4.api import Satrec, WGS84
+from skyfield.api import load, EarthSatellite
 from sgp4.ext import rv2coe
 import math
 import numpy as np;

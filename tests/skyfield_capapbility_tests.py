@@ -1,9 +1,6 @@
 from skyfield.api import Topos, load, wgs84, EarthSatellite
 from sgp4.api import Satrec, WGS84
 
-import numpy as np
-import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
 
 def loadSatelliteFromString():
 

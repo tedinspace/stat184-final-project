@@ -1,4 +1,4 @@
-from utils.time import h2frac
+from SSN_RL.utils.time import h2frac
 import numpy as np
 class Maneuver:
     def __init__(self,magDV, hoursIntoScenario, sConfigs):

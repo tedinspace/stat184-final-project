@@ -1,9 +1,8 @@
-from skyfield.api import Topos, load, wgs84, EarthSatellite
-from utils.time import SPD, s2frac, m2frac
-from environment.ScenarioConfigs import ScenarioConfigs
-from environment.Satellite import Satellite
-from environment.Manuever import Maneuver
-from scenarioBuilder.clusters import MUOS_CLUSTER
+from skyfield.api import load
+from SSN_RL.environment.ScenarioConfigs import ScenarioConfigs
+from SSN_RL.environment.Satellite import Satellite
+from SSN_RL.environment.Manuever import Maneuver
+from SSN_RL.scenarioBuilder.clusters import MUOS_CLUSTER
 import matplotlib.pyplot as plt
 
 

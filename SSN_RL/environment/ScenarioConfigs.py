@@ -1,5 +1,5 @@
 from skyfield.api import load
-from utils.time import SPD, h2frac
+from SSN_RL.utils.time import SPD, h2frac
 class ScenarioConfigs:
     def __init__(self, scenarioEpoch, scenarioLengthHours):
         
