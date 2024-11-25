@@ -1,9 +1,10 @@
 from skyfield.api import load
-from environment.ScenarioConfigs import ScenarioConfigs
-from environment.Satellite import Satellite
-from environment.Manuever import Maneuver
-from environment.Sensor import Sensor
-from scenarioBuilder.clusters import MUOS_CLUSTER
+from SSN_RL.environment.ScenarioConfigs import ScenarioConfigs
+from SSN_RL.environment.Satellite import Satellite
+from SSN_RL.environment.Manuever import Maneuver
+from SSN_RL.scenarioBuilder.clusters import MUOS_CLUSTER
+from SSN_RL.scenarioBuilder.SSN import MHR, MAUI, ASCENSION
+
 
 # init configs (epoch + length)
 sConfigs = ScenarioConfigs(load.timescale().utc(2024, 11, 24, 0, 0, 0), 10.5)
@@ -22,9 +23,7 @@ S[2].addManeuvers([Maneuver(5.5,8.5, sConfigs)])
 
 # init supporting objects ... 
 # - sensors
-MHR = Sensor("mhr", [42.3583, 71.060, 100])
-ASCENSION = Sensor("ascension", [-7.678805483927795, -13.265374101627982, 0])
-MAUI = Sensor("GEODSS Maui", [20.708259458876853, -156.2567944944128, 0])
+
 # - agents 
 # - catalog 
 was_seen = set()

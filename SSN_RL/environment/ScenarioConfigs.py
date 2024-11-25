@@ -15,7 +15,3 @@ class ScenarioConfigs:
         self.timeDelta = self.dt / SPD
         # number of total iterations
         self.nSteps = round(self.scenarioLengthHours*60*(60/self.dt))
-
-
-
-        

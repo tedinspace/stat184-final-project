@@ -1,5 +1,7 @@
 # Multi-Agent RL in Sensor Tasking for Space Domain Awareness
 
+![SSN Overview](data/SSN.png)
+
 ## Developer Environment Setup 
 
 1. create conda environment with micromamba 
