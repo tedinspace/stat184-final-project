@@ -17,7 +17,7 @@ class Sensor:
         self.modality = modeEnum
 
     def hasLineOfSight(self, X, t):
-        alt, az, distance = (X-self.groundObserver.at(t)).altaz()
+        alt, _, _ = (X-self.groundObserver.at(t)).altaz()
         return alt.degrees > 5
 
     def isVisible(self, X, t):
