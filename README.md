@@ -25,6 +25,8 @@ Note: sometimes I need to run the following command prior to reactivating
 
 `python -m tests.basic-maneuver-sim.py`
 
+`python -m tests.optical-sensing-test.py`
+
 
 ## Library Documentation 
 

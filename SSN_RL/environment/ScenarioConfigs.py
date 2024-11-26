@@ -15,3 +15,9 @@ class ScenarioConfigs:
         self.timeDelta = self.dt / SPD
         # number of total iterations
         self.nSteps = round(self.scenarioLengthHours*60*(60/self.dt))
+
+    def updateDT_careful(self, dt):
+        self.dt
+        self.timeDelta = self.dt / SPD
+        self.nSteps = round(self.scenarioLengthHours*60*(60/self.dt))
+
