@@ -3,8 +3,7 @@ from SSN_RL.utils.time import SPD, h2frac
 class ScenarioConfigs:
     def __init__(self, scenarioEpoch, scenarioLengthHours):
         
-        #self.taskDelay = 10 # [mins] - time for message to be received by sensor from agent 
-        #self.taskDelayRand = [-5,5] # [-mins, +mins] randomness added tasking delay 
+        
         self.ts  = load.timescale()
 
         self.dt = 5 # [s] - time step
@@ -17,7 +16,8 @@ class ScenarioConfigs:
         self.nSteps = round(self.scenarioLengthHours*60*(60/self.dt))
 
     def updateDT_careful(self, dt):
-        self.dt
+        '''change the delta t; shouldn't do this in the middle of a scenario'''
+        self.dt = dt
         self.timeDelta = self.dt / SPD
         self.nSteps = round(self.scenarioLengthHours*60*(60/self.dt))
 

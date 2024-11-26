@@ -1,8 +1,9 @@
 from skyfield.api import load
 from SSN_RL.environment.ScenarioConfigs import ScenarioConfigs
+from SSN_RL.environment.Sensor import SensorResponse
 from SSN_RL.environment.Satellite import Satellite
 from SSN_RL.environment.Manuever import Maneuver
-from SSN_RL.environment.AgentWrapper import AgentWrapper
+from SSN_RL.environment.Agent import AgentWrapper, AgentRewardCostTracker
 from SSN_RL.environment.StateCatalog import StateCatalog
 from SSN_RL.scenarioBuilder.clusters import MUOS_CLUSTER
 from SSN_RL.scenarioBuilder.SSN import MHR
@@ -28,7 +29,10 @@ S[allSatNames[2]].addManeuvers([Maneuver(5.5,8.5, sConfigs)])
 # - sensors
 sensors = {MHR.name: MHR}
 # - agents 
-A1 = AgentWrapper(allSatNames, [MHR.name])
+A = [AgentWrapper("agent 1", allSatNames, [MHR.name])]
+RC = AgentRewardCostTracker(["agent 1"])
+
+
 # - catalog 
 C = StateCatalog(S) # we are initializing with the truth states; this doesn't have to be the case
 
@@ -48,22 +52,43 @@ while cTime < sConfigs.scenarioEnd:
     events = []
     for sensor in sensors:
         events += sensors[sensor].checkForUpdates(cTime)
-    # --> update catalog 
-    # TODO 
+
+    # ii. reset agent reward/punishment map
+    RC.resetForRound()
+    # ii. go through events
+    for event in events:
+        # TODO configure rewards
+        if event.type == SensorResponse.COMPLETED_NOMINAL:
+            # --> update catalog (reward)
+            RC.reward(event.agentID, 10) # TODO
+        elif event.type == SensorResponse.COMPLETED_MANEUVER:
+            # --> update catalog (rewardx2)
+            RC.reward(event.agentID, 20) # TODO
+        elif event.type == SensorResponse.INVALID:
+            # --> punish invalid 
+            RC.reward(event.agentID, -15) # TODO
+        elif event.type == SensorResponse.DROPPED_SCHEDULING:
+            # --> punish dropped? 
+            RC.reward(event.agentID, 0) # TODO 
+        elif event.type == SensorResponse.DROPPED_LOST:
+            # --> punish lost
+            RC.reward(event.agentID, -10) # TODO
+    
     # ii. last seen 
     lastSeen = C.lastSeen_mins(cTime)
-
-    # TODO punish/reward: last seen and arriving events 
-    rewardOrCost = 0
+    # TODO punish for too long
 
     # 3. get agent's responses
-    action = A1.decide(rewardOrCost, lastSeen)
+    actions = {}
+    for agent in A:
+        actions[agent.agentID]=agent.decide(RC.rewardPunishments_thisRound[agent.agentID], lastSeen)
     
     # 4. execute actions 
     # i. send new tasks to appropriate sensors (delays)
-    for sat in action:
-        if action[sat]: # if not do nothing (i.e. False)
-            sensors[action[sat]].sendSensorTask(cTime, sat, C.currentCatalog[sat], sConfigs)
+    for agentKey in actions:
+        for sat in actions[agentKey]:
+            if actions[agentKey][sat]: # if not do nothing (i.e. False)
+                sensors[actions[agentKey][sat]].sendSensorTask(cTime, agentKey, sat, C.currentCatalog[sat])
     # ii. execute or continue executing tasks that have arrived to sensor
     for sensor in sensors:
         sensors[sensor].executeTasking(cTime)
