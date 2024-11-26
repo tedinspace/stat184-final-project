@@ -2,6 +2,7 @@ from datetime import datetime
 
 
 SPD = 86400
+MPD = 1440
 
 def s2frac(s):
     '''seconds --> fraction of a day'''

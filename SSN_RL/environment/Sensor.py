@@ -12,7 +12,9 @@ class Sensor:
         self.alt = lla[2]
         self.modality = SensorModality.UNSPEC
         self.groundObserver = wgs84.latlon(self.lat, self.lon, self.alt)
-
+        self.pendingIncomingTasks = []
+        self.executingTasks = []
+        self.pendingOutgoingInformation = []
 
     def updateModality(self, modeEnum):
         self.modality = modeEnum
@@ -27,10 +29,19 @@ class Sensor:
             if self.modality == SensorModality.OPTICS:
                 alt_solar, _, _ = (sun.at(t)-self.groundObserver.at(t)).altaz()
                 return alt_solar.degrees < -12 # up until nautical twilight starts
-            return True
+            return True # radar
 
         return False
+    
+    def sendSensorTask(self, t, satName, currentCatalogState, sConfigs ):
+        print(currentCatalogState)
 
+    def executeTasking(self,t):
+        # TODO 
+        print("TODO")
 
+    def checkForUpdates(self, t):
+        print("TODO - check for updates")
+        return []
 
 
