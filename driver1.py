@@ -9,8 +9,8 @@ from SSN_RL.environment.Agent import AgentWrapper
 from SSN_RL.environment.StateCatalog import StateCatalog
 from SSN_RL.scenarioBuilder.clusters import MUOS_CLUSTER
 from SSN_RL.scenarioBuilder.SSN import MHR
-
 from SSN_RL.debug.Loggers import EventCounter
+
 EC = EventCounter()
 
 # init configs (epoch + length)
@@ -78,9 +78,13 @@ while cTime < sConfigs.scenarioEnd:
             curratedEvents.append(event)
 
             C.updateState(event.satID, event.newState)
-        elif event.type == SensorResponse.DROPPED_SCHEDULING:
-            # --> dropped tasks
-            curratedEvents.append(event)
+        elif event.type == SensorResponse.DROPPED_LOST:
+            # --> lost
+            if not C.wasManeuverAlreadyDetected(cTime, event.satID, event.crystalBallState): 
+                curratedEvents.append(event)
+            else:
+                print("object saved just in time")
+        
         else: 
             curratedEvents.append(event)
             

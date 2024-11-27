@@ -29,4 +29,5 @@ class EventMessage:
         self.agentID = taskMessage.agentID # agent who opened the loop
         self.satID = taskMessage.satID # satellite the message was about
         self.newState = newState # sometimes empty array; only contains a state if a new state was estimated by sensor
+        self.crystalBallState = [] # 
         #self.taskMessage = taskMessage

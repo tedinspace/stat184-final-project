@@ -4,6 +4,7 @@ from enum import Enum
 from SSN_RL.utils.time import MPD
 from skyfield.api import wgs84, load
 import random
+import numpy as np
 
 
 eph = load('de421.bsp')
@@ -21,16 +22,12 @@ class SensorResponse(Enum):
     COMPLETED_NOMINAL = 4 # sensor completed tasking, nothing occurred 
     COMPLETED_MANEUVER = 5 # sensor completed tasking and discovered a maneuver
 
-class SensorState(Enum):
-    RESTING = 1,
-    SLEWING = 2,
-    TRACKING = 3
 
 class Sensor:
     def __init__(self, name, lla):
+        '''sensor constructor '''
         self.name = name
         self.modality = SensorModality.UNSPEC
-        #self.currentState = SensorState.RESTING
         self.activeTask = False
 
         self.groundObserver = wgs84.latlon(lla[0], lla[1], lla[2])
@@ -41,8 +38,10 @@ class Sensor:
 
         self.taskDelay = 7.5 # [mins] - time for message to be received by sensor from agent 
         self.taskDelayRand = [-5,5] # [-mins, +mins] randomness added tasking delay 
+
         self.responseDelay = 5 ; 
         self.responseDelayRand = [-2,4]   
+
         self.catalogUpdateDelay = 5 ; 
         self.catalogUpdateDelayRand = [-2,2]  
 
@@ -52,11 +51,11 @@ class Sensor:
 
         self.completedTasks = []
         
-
-
     def updateModality(self, modeEnum):
         '''change from unspecified to RADAR or Optics'''
         self.modality = modeEnum; 
+    
+    # - - - - - - - - - - - - - - - VISIBILITY - - - - - - - - - - - - - - -
 
     def hasLineOfSight(self, X, t):
         '''Point to the sky, is it there?'''
@@ -75,25 +74,24 @@ class Sensor:
             return True 
         return False  
     
+    # - - - - - - - - - - - - - - - ENV INTERACTION - - - - - - - - - - - - - - -
+
     def sendSensorTask(self, t, agentID, satName, currentCatalogState ):
         '''stages a task message'''
         self.pendingIncomingTasks.append(PendingTaskMessage(agentID, satName,t + (self.taskDelay + random.uniform(self.taskDelayRand[0], self.taskDelayRand[1]) )/MPD, currentCatalogState ))
-
-    def canAcquire_plus_crystalBall(self, t, truthSatInfo ):
-
-        if truthSatInfo.maneuveredBetween(self.activeTask.availableState.stateValidityEpoch, t): 
-            print("maneuver detected "+self.activeTask.satID)
-            self.activeTask.maneuverDetected = True
-        elif truthSatInfo.maneuveredBetween(self.activeTask.availableState.stateValidityEpoch, self.activeTask.stopTime): 
-            print("maneuver detected during tracking "+self.activeTask.satID)
-            self.activeTask.maneuverDetected = True
-        else: 
-            print("nominal "+self.activeTask.satID)
-        
-        return True
-
-        
-
+    
+    def checkForUpdates(self, t):
+        '''check if response info is ready to be received by agent/environment'''
+        outGoing = []
+        stillPending = []
+        for info in self.pendingOutgoingInformation:
+            if info.arrivalTime < t:
+                outGoing.append(info)
+            else:
+                stillPending.append(info)
+        self.pendingOutgoingInformation = stillPending
+        return outGoing        
+    
 
     def tick(self,t,truthStates):
         '''checks if messages has arrived, if so starts executing them'''
@@ -130,26 +128,21 @@ class Sensor:
                         self.activeTask.checkedAcquisition = True # mark as such
                     else:
                         # can't acquire
-                        self.pendingOutgoingInformation.append(EventMessage(SensorResponse.DROPPED_LOST, t + (self.responseDelay + random.uniform(self.responseDelayRand[0], self.responseDelayRand[1]) )/MPD, self.activeTask.taskMessage, [] ))                
+                        X = EventMessage(SensorResponse.DROPPED_LOST, t + (self.responseDelay + random.uniform(self.responseDelayRand[0], self.responseDelayRand[1]) )/MPD, self.activeTask.taskMessage, [] )
+                        X.crystalBallState = truthStates[self.activeTask.satID]
+                        self.pendingOutgoingInformation.append(X)                
                         self.activeTask = False 
             
         if self.activeTask and self.activeTask.stopTime < t:
             self.completedTasks.append(self.activeTask)
             # - is there an active task that's done and ready to be sent out
             if self.activeTask.maneuverDetected:
-                #print(self.activeTask.satID)
-                #print(self.activeTask.satID)
-                #print("MANUEVER")
                 # - maneuver detected state
                 self.pendingOutgoingInformation.append(EventMessage(SensorResponse.COMPLETED_MANEUVER, t + (self.catalogUpdateDelay + random.uniform(self.catalogUpdateDelayRand[0], self.catalogUpdateDelayRand[1]) )/MPD, self.activeTask.taskMessage, StateCatalogEntry(truthStates[self.activeTask.satID].activeObject, self.activeTask.stopTime) ))
                 self.activeTask = False 
             else:
-                #print(self.activeTask.satID)
-                #print("NOMINAL")
                 # - no maneuver detected
                 self.pendingOutgoingInformation.append(EventMessage(SensorResponse.COMPLETED_NOMINAL, t + (self.catalogUpdateDelay + random.uniform(self.catalogUpdateDelayRand[0], self.catalogUpdateDelayRand[1]) )/MPD, self.activeTask.taskMessage, StateCatalogEntry(self.activeTask.availableState.activeObject, self.activeTask.stopTime) ))
-                #print("stopped --> "+self.activeTask.satID)
-                #print(t.utc_iso())
                 self.activeTask = False
                 
         if self.activeTask==False:
@@ -162,9 +155,6 @@ class Sensor:
                 # take next pending task if nothing in scheduled task list 
                 nextTask = remainingPendingTasks.pop()
                 self.activeTask = TaskCommand(nextTask, t+ self.slewAndSettleTimeMins/MPD, self.taskingLengthMins)
-            #if self.activeTask:
-            #    print("started --> "+self.activeTask.satID)
-            #    print(t.utc_iso())
 
         # 4. schedule remaining tasks (or try)
 
@@ -182,24 +172,20 @@ class Sensor:
                     # task not over the schedule ahead time 
                     self.pendingOutgoingInformation.append(EventMessage(SensorResponse.DROPPED_SCHEDULING, t + (self.responseDelay + random.uniform(self.responseDelayRand[0], self.responseDelayRand[1]) )/MPD, taskExe, [] ))
 
-
-
-
-
-
-
-
-    def checkForUpdates(self, t):
-        '''check if response info is ready to be received by agent/environment'''
-        outGoing = []
-        stillPending = []
-        for info in self.pendingOutgoingInformation:
-            if info.arrivalTime < t:
-                outGoing.append(info)
-            else:
-                stillPending.append(info)
-        self.pendingOutgoingInformation = stillPending
-        return outGoing
-
-
+    
+    # - - - - - - - - - - - - - - - DETECTION UTILITY - - - - - - - - - - - - - - -
+    def canAcquire_plus_crystalBall(self, t, truthSatInfo ):
+        '''can we acquire on the satellite and indicates if maneuver occurred '''
+        if truthSatInfo.maneuveredBetween(self.activeTask.availableState.stateValidityEpoch, t): 
+            print("maneuver detected "+self.activeTask.satID)
+            self.activeTask.maneuverDetected = True
+        elif truthSatInfo.maneuveredBetween(self.activeTask.availableState.stateValidityEpoch, self.activeTask.stopTime): 
+            print("maneuver detected during tracking "+self.activeTask.satID)
+            self.activeTask.maneuverDetected = True
+        else: 
+            print("nominal "+self.activeTask.satID)
+        
+        X_est = self.activeTask.availableState.activeObject.at(t)
+        X_true = truthSatInfo.activeObject.at(t)
+        return np.linalg.norm((X_est-X_true).position.km) < 10000
 
