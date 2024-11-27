@@ -10,6 +10,8 @@ from SSN_RL.environment.StateCatalog import StateCatalog
 from SSN_RL.scenarioBuilder.clusters import MUOS_CLUSTER
 from SSN_RL.scenarioBuilder.SSN import MHR
 
+from SSN_RL.debug.Loggers import EventCounter
+EC = EventCounter()
 
 # init configs (epoch + length)
 sConfigs = ScenarioConfigs(load.timescale().utc(2024, 11, 24, 0, 0, 0), 14.5)
@@ -41,11 +43,7 @@ eventsFromSensor = []
 Successful_Tasks = []
 cTime = sConfigs.scenarioEpoch
 
-tasksSent = 0
-tasksDropped = 0
-stateUpdates = 0
-maneverDetections = 0
-uniqueManeuverDetections = 0
+
 uniqueManeuverDetections_states = []
 
 while cTime < sConfigs.scenarioEnd:
@@ -63,24 +61,26 @@ while cTime < sConfigs.scenarioEnd:
     # ii. conduct catalog state updates 
     curratedEvents = [] # events we want to send to agent as a state
     for event in events:
+        EC.increment(event.type)
         #print(event.satID + "-->"+ str(event.type))
         if event.type == SensorResponse.COMPLETED_NOMINAL:
             # --> update catalog 
             C.updateState(event.satID, event.newState)
-            stateUpdates+=1
+            curratedEvents.append(event)
         elif event.type == SensorResponse.COMPLETED_MANEUVER:
             # --> update catalog with maneuver
             if not C.wasManeuverAlreadyDetected(cTime, event.satID, event.newState): 
-                uniqueManeuverDetections+=1
+                EC.increment("unique maneuver detection")
                 uniqueManeuverDetections_states.append(event)  
-                curratedEvents.append(event)              
+            else:
+                # if not unique, just credit as state update
+                event.type = SensorResponse.COMPLETED_NOMINAL
+            curratedEvents.append(event)
+
             C.updateState(event.satID, event.newState)
-            maneverDetections+=1
-            stateUpdates+=1
         elif event.type == SensorResponse.DROPPED_SCHEDULING:
             # --> dropped tasks
             curratedEvents.append(event)
-            tasksDropped+=1
         else: 
             curratedEvents.append(event)
             
@@ -89,7 +89,7 @@ while cTime < sConfigs.scenarioEnd:
     # 3. get agent's responses
     actions = {}
     for agent in A:
-        actions[agent.agentID]=agent.decide(events, C)
+        actions[agent.agentID]=agent.decide(curratedEvents, C)
     
     # 4. execute actions 
     # i. send new tasks to appropriate sensors (delays)
@@ -97,7 +97,7 @@ while cTime < sConfigs.scenarioEnd:
         for sat in actions[agentKey]:
             if actions[agentKey][sat]: # if not do nothing (i.e. False)
                 sensors[actions[agentKey][sat]].sendSensorTask(cTime, agentKey, sat, C.currentCatalog[sat])
-                tasksSent+=1
+                EC.increment("tasks sent")
     # ii. execute or continue executing tasks that have arrived to sensor
     for sensor in sensors:
         sensors[sensor].tick(cTime, S)
@@ -109,14 +109,8 @@ while cTime < sConfigs.scenarioEnd:
 
 
 # - - - - - - - - - - - - - - - - SCENARIO VISUALIZATION  - - - - - - - - - - - - - - - -
+EC.display()
 
-print('---'*24)
-print("> tasks sent - "+str(tasksSent))
-print("> tasks dropped - "+str(tasksDropped))
-print("> stateUpdates - "+str(stateUpdates))
-print("> maneverDetections - "+str(maneverDetections))
-print("> uniqueManeuverDetections - "+str(uniqueManeuverDetections))
-print('---'*24)
 
 fig, ax = plt.subplots()
 colors = {
@@ -134,3 +128,4 @@ for event in uniqueManeuverDetections_states:
     ax.axvline(x=event.arrivalTime.tt, color=colors[event.satID], linestyle='-.', linewidth=2)
 
 plt.show()
+
