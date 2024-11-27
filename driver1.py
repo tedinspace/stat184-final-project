@@ -10,7 +10,7 @@ from SSN_RL.scenarioBuilder.SSN import MHR
 
 
 # init configs (epoch + length)
-sConfigs = ScenarioConfigs(load.timescale().utc(2024, 11, 24, 0, 0, 0), 4.5)
+sConfigs = ScenarioConfigs(load.timescale().utc(2024, 11, 24, 0, 0, 0), 14.5)
 
 # generate true satellites
 S = {}
@@ -38,7 +38,7 @@ C = StateCatalog(S) # we are initializing with the truth states; this doesn't ha
 
 # scenario loop 
 eventsFromSensor = []
-
+Successful_Tasks = []
 cTime = sConfigs.scenarioEpoch
 while cTime < sConfigs.scenarioEnd:
     # 1. everything needs to move forward to the current time 
@@ -57,13 +57,19 @@ while cTime < sConfigs.scenarioEnd:
     RC.resetForRound()
     # ii. go through events
     for event in events:
+        #print(event.satID + "-->"+ str(event.type))
         # TODO configure rewards
         if event.type == SensorResponse.COMPLETED_NOMINAL:
             # --> update catalog (reward)
             RC.reward(event.agentID, 10) # TODO
+            C.updateState(event.satID, event.newState)
         elif event.type == SensorResponse.COMPLETED_MANEUVER:
             # --> update catalog (rewardx2)
-            RC.reward(event.agentID, 20) # TODO
+            if C.wasManeuverAlreadyDetected(cTime, event.satID, event.newState): 
+                print("maneuver already detected; no credit for maneuver")
+            else:
+                RC.reward(event.agentID, 20) # TODO
+            C.updateState(event.satID, event.newState)
         elif event.type == SensorResponse.INVALID:
             # --> punish invalid 
             RC.reward(event.agentID, -15) # TODO
@@ -91,7 +97,7 @@ while cTime < sConfigs.scenarioEnd:
                 sensors[actions[agentKey][sat]].sendSensorTask(cTime, agentKey, sat, C.currentCatalog[sat])
     # ii. execute or continue executing tasks that have arrived to sensor
     for sensor in sensors:
-        sensors[sensor].executeTasking(cTime)
+        sensors[sensor].tick(cTime, S)
     
     # iterate
     cTime += sConfigs.timeDelta

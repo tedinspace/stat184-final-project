@@ -1,7 +1,7 @@
 from skyfield.api import Topos, load, wgs84, EarthSatellite
 from sgp4.api import Satrec, WGS84
 
-
+print(dir(EarthSatellite))
 def loadSatelliteFromString():
 
     ts = load.timescale()

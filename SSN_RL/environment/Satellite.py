@@ -85,3 +85,12 @@ class Satellite:
                 
         # change active object if necessary
         return self.activeObject.at(t)
+    
+    def maneuveredBetween(self,lastEpoch, tNow):
+        didManuever = False
+        for m in self.maneuverList:
+            if m.time > lastEpoch and m.time < tNow:
+                return True
+
+        return didManuever
+
