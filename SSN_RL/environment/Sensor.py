@@ -48,6 +48,8 @@ class Sensor:
         self.slewAndSettleTimeMins = 1.5 # [mins]
         self.scheduleAheadLimitMins = 30 # [mins]
         self.taskingLengthMins = 5.5 
+
+        self.completedTasks = []
         
 
 
@@ -131,6 +133,7 @@ class Sensor:
                         self.activeTask = False 
             
         if self.activeTask and self.activeTask.stopTime < t:
+            self.completedTasks.append(self.activeTask)
             # - is there an active task that's done and ready to be sent out
             if self.activeTask.maneuverDetected:
                 #print(self.activeTask.satID)
