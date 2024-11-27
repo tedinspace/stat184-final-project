@@ -89,7 +89,7 @@ while cTime < sConfigs.scenarioEnd:
     # 3. get agent's responses
     actions = {}
     for agent in A:
-        actions[agent.agentID]=agent.decide(curratedEvents, C)
+        actions[agent.agentID]=agent.decide(cTime, curratedEvents, C)
     
     # 4. execute actions 
     # i. send new tasks to appropriate sensors (delays)
