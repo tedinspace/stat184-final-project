@@ -165,8 +165,8 @@ class Sensor:
             else:
                 # try to schedule in accordance with other scheduled tasks
                 requestedStartTime = self.scheduledTasks[-1].stopTime + self.slewAndSettleTimeMins/MPD
-                if requestedStartTime < t + self.scheduleAheadLimitMins/MPD:
-                    #  task is within the schedule ahead time
+                if requestedStartTime < t + self.scheduleAheadLimitMins/MPD and self.scheduledTasks[-1].satID != taskExe.satID:
+                    #  task is within the schedule ahead time AND didn't just schedule a task for the same object
                     self.scheduledTasks.append(TaskCommand(taskExe, requestedStartTime, self.taskingLengthMins ))
                 else:
                     # task not over the schedule ahead time 

@@ -1,4 +1,3 @@
-import random
 from SSN_RL.environment.Sensor import SensorResponse
 import numpy as np
 
