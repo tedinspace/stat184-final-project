@@ -1,7 +1,6 @@
 from skyfield.api import load, N, W
 from SSN_RL.environment.ScenarioConfigs import ScenarioConfigs
-from SSN_RL.environment.Sensor import Sensor
-from SSN_RL.environment.SensorModality import SensorModality
+from SSN_RL.environment.Sensor import Sensor, SensorModality
 import matplotlib.pyplot as plt
 
 eph = load('de421.bsp')

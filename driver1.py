@@ -5,7 +5,7 @@ from SSN_RL.environment.ScenarioConfigs import ScenarioConfigs
 from SSN_RL.environment.Sensor import SensorResponse
 from SSN_RL.environment.Satellite import Satellite
 from SSN_RL.environment.Manuever import Maneuver
-from SSN_RL.environment.Agent import AgentWrapper, AgentRewardCostTracker
+from SSN_RL.environment.Agent import AgentWrapper
 from SSN_RL.environment.StateCatalog import StateCatalog
 from SSN_RL.scenarioBuilder.clusters import MUOS_CLUSTER
 from SSN_RL.scenarioBuilder.SSN import MHR
@@ -32,8 +32,6 @@ S[allSatNames[2]].addManeuvers([Maneuver(5.5,8.5, sConfigs)])
 sensors = {MHR.name: MHR}
 # - agents 
 A = [AgentWrapper("agent 1", allSatNames, [MHR.name])]
-RC = AgentRewardCostTracker(["agent 1"])
-
 
 # - catalog 
 C = StateCatalog(S) # we are initializing with the truth states; this doesn't have to be the case
@@ -56,55 +54,42 @@ while cTime < sConfigs.scenarioEnd:
     for satKey in S:
         S[satKey].tick(cTime)
         
-
     # 2. gather information
     # i. check to see if any sensor events are available to agent 
     events = []
     for sensor in sensors:
         events += sensors[sensor].checkForUpdates(cTime)
 
-    # ii. reset agent reward/punishment map
-    RC.resetForRound()
-    # ii. go through events
+    # ii. conduct catalog state updates 
+    curratedEvents = [] # events we want to send to agent as a state
     for event in events:
         #print(event.satID + "-->"+ str(event.type))
-        # TODO configure rewards
         if event.type == SensorResponse.COMPLETED_NOMINAL:
-            # --> update catalog (reward)
-            RC.reward(event.agentID, 10) # TODO
+            # --> update catalog 
             C.updateState(event.satID, event.newState)
             stateUpdates+=1
         elif event.type == SensorResponse.COMPLETED_MANEUVER:
-            # --> update catalog (rewardx2)
-            if C.wasManeuverAlreadyDetected(cTime, event.satID, event.newState): 
-                print("maneuver already detected; no credit for maneuver")
-            else:
+            # --> update catalog with maneuver
+            if not C.wasManeuverAlreadyDetected(cTime, event.satID, event.newState): 
                 uniqueManeuverDetections+=1
-                uniqueManeuverDetections_states.append(event)
-                RC.reward(event.agentID, 20) # TODO
+                uniqueManeuverDetections_states.append(event)  
+                curratedEvents.append(event)              
             C.updateState(event.satID, event.newState)
             maneverDetections+=1
             stateUpdates+=1
-        elif event.type == SensorResponse.INVALID:
-            # --> punish invalid 
-            RC.reward(event.agentID, -15) # TODO
         elif event.type == SensorResponse.DROPPED_SCHEDULING:
-            # --> punish dropped? 
-            RC.reward(event.agentID, 0) # TODO 
+            # --> dropped tasks
+            curratedEvents.append(event)
             tasksDropped+=1
-        elif event.type == SensorResponse.DROPPED_LOST:
-            # --> punish lost
-            RC.reward(event.agentID, -10) # TODO
+        else: 
+            curratedEvents.append(event)
             
     
-    # ii. last seen 
-    lastSeen = C.lastSeen_mins(cTime)
-    # TODO punish for too long
 
     # 3. get agent's responses
     actions = {}
     for agent in A:
-        actions[agent.agentID]=agent.decide(RC.rewardPunishments_thisRound[agent.agentID], lastSeen)
+        actions[agent.agentID]=agent.decide(events, C)
     
     # 4. execute actions 
     # i. send new tasks to appropriate sensors (delays)
@@ -122,6 +107,9 @@ while cTime < sConfigs.scenarioEnd:
 
 
 
+
+# - - - - - - - - - - - - - - - - SCENARIO VISUALIZATION  - - - - - - - - - - - - - - - -
+
 print('---'*24)
 print("> tasks sent - "+str(tasksSent))
 print("> tasks dropped - "+str(tasksDropped))
@@ -130,9 +118,7 @@ print("> maneverDetections - "+str(maneverDetections))
 print("> uniqueManeuverDetections - "+str(uniqueManeuverDetections))
 print('---'*24)
 
-print(len(sensors[MHR.name].completedTasks))
 fig, ax = plt.subplots()
-
 colors = {
     'MUOS1': 'blue', 
     "MUOS3": 'orange', 
@@ -147,7 +133,4 @@ for satKey in S:
 for event in uniqueManeuverDetections_states:
     ax.axvline(x=event.arrivalTime.tt, color=colors[event.satID], linestyle='-.', linewidth=2)
 
-
-
-plt.grid(True)
 plt.show()

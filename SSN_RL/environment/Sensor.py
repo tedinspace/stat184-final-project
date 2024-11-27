@@ -1,4 +1,5 @@
 from SSN_RL.environment.Messages import PendingTaskMessage, EventMessage, TaskCommand
+from SSN_RL.environment.StateCatalog import StateCatalogEntry
 from enum import Enum
 from SSN_RL.utils.time import MPD
 from skyfield.api import wgs84, load
@@ -80,10 +81,10 @@ class Sensor:
 
     def canAcquire_plus_crystalBall(self, t, truthSatInfo ):
 
-        if truthSatInfo.maneuveredBetween(self.activeTask.availableState.epoch, t): 
+        if truthSatInfo.maneuveredBetween(self.activeTask.availableState.stateValidityEpoch, t): 
             print("maneuver detected "+self.activeTask.satID)
             self.activeTask.maneuverDetected = True
-        elif truthSatInfo.maneuveredBetween(self.activeTask.availableState.epoch, self.activeTask.stopTime): 
+        elif truthSatInfo.maneuveredBetween(self.activeTask.availableState.stateValidityEpoch, self.activeTask.stopTime): 
             print("maneuver detected during tracking "+self.activeTask.satID)
             self.activeTask.maneuverDetected = True
         else: 
@@ -112,7 +113,7 @@ class Sensor:
         remainingPendingTasks = []
         sentInvalidState = []
         for taskExe in tasksToExecute:
-            if self.isVisible(taskExe.availableState.at(t), t):
+            if self.isVisible(taskExe.availableState.activeObject.at(t), t):
                 remainingPendingTasks.append(taskExe)
             else:
                 # state not visible
@@ -140,15 +141,13 @@ class Sensor:
                 #print(self.activeTask.satID)
                 #print("MANUEVER")
                 # - maneuver detected state
-                self.pendingOutgoingInformation.append(EventMessage(SensorResponse.COMPLETED_MANEUVER, t + (self.catalogUpdateDelay + random.uniform(self.catalogUpdateDelayRand[0], self.catalogUpdateDelayRand[1]) )/MPD, self.activeTask.taskMessage, truthStates[self.activeTask.satID].activeObject ))
+                self.pendingOutgoingInformation.append(EventMessage(SensorResponse.COMPLETED_MANEUVER, t + (self.catalogUpdateDelay + random.uniform(self.catalogUpdateDelayRand[0], self.catalogUpdateDelayRand[1]) )/MPD, self.activeTask.taskMessage, StateCatalogEntry(truthStates[self.activeTask.satID].activeObject, self.activeTask.stopTime) ))
                 self.activeTask = False 
             else:
                 #print(self.activeTask.satID)
                 #print("NOMINAL")
                 # - no maneuver detected
-                nState = self.activeTask.availableState
-                nState.epoch = self.activeTask.stopTime
-                self.pendingOutgoingInformation.append(EventMessage(SensorResponse.COMPLETED_NOMINAL, t + (self.catalogUpdateDelay + random.uniform(self.catalogUpdateDelayRand[0], self.catalogUpdateDelayRand[1]) )/MPD, self.activeTask.taskMessage, nState ))
+                self.pendingOutgoingInformation.append(EventMessage(SensorResponse.COMPLETED_NOMINAL, t + (self.catalogUpdateDelay + random.uniform(self.catalogUpdateDelayRand[0], self.catalogUpdateDelayRand[1]) )/MPD, self.activeTask.taskMessage, StateCatalogEntry(self.activeTask.availableState.activeObject, self.activeTask.stopTime) ))
                 #print("stopped --> "+self.activeTask.satID)
                 #print(t.utc_iso())
                 self.activeTask = False
