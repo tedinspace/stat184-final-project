@@ -13,4 +13,7 @@ for t in range(T):
 
 plt.figure(figsize=(8, 6))
 plt.plot(range(T), x, label='x values', marker='o', linestyle='-', color='red')
+plt.xlabel('Time steps [seconds]', fontsize=12)
+plt.ylabel('RSS Position Growth [m]', fontsize=12)
+plt.title('Position covariance growth simulation', fontsize=14)
 plt.show()

@@ -52,25 +52,28 @@ while cTime < sConfigs.scenarioEnd:
 
 plt.figure(figsize=(10, 6))
 
-plt.plot(time, lat_no, label="Latitude (°) - no", color='g', marker='o')
-plt.plot(time, lon_no, label="Longitude (°) - no", color='g', marker='x')
-plt.plot(time, lat, label="Latitude (°)", color='r', marker='o')
-plt.plot(time, lon, label="Longitude (°)", color='r', marker='x')
+plt.plot(time, lat_no, label="Latitude (°) no maneuver", color='g', marker='o')
+plt.plot(time, lon_no, label="Longitude (°) no maneuver", color='g', marker='x')
+plt.plot(time, lat, label="Latitude (°) change with maneuver", color='r', marker='o')
+plt.plot(time, lon, label="Longitude (°) change with maneuver", color='r', marker='x')
 
 for m in S1.maneuverList:
     plt.axvline(x=m.time.tt, color='r', linestyle='--', label='maneuver')
 
 
 plt.xlabel('Time (UTC)', fontsize=12)
-plt.ylabel('Value', fontsize=12)
-plt.title('Satellite Position over Time', fontsize=14)
+plt.ylabel('Latitude/Longitude [degree]', fontsize=12)
+plt.title('Satellite Position (Lat/Lon) with and without maneuver', fontsize=14)
 plt.legend()
 
 plt.show()
 
-plt.plot(time, alt, label="Altitude (km)", color='g', marker='^')
-plt.plot(time, alt_no, label="Altitude (km) -no", color='r', marker='^')
+plt.plot(time, alt, label="Altitude (km) change with maneuver", color='r', marker='^')
+plt.plot(time, alt_no, label="Altitude (km) no maneuver", color='g', marker='^')
 for m in S1.maneuverList:
     plt.axvline(x=m.time.tt, color='r', linestyle='--', label='maneuver')
-
+plt.xlabel('Time (UTC)', fontsize=12)
+plt.ylabel('Altitude [km]', fontsize=12)
+plt.title('Satellite Position (Altitude) with and without maneuver', fontsize=14)
+plt.legend()
 plt.show()

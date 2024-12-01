@@ -28,10 +28,13 @@ while cTime < sConfigs.scenarioEnd:
 
 plt.figure(figsize=(10, 6))
 
-plt.plot(time, solarHorizon, label="Latitude (°) - no", color='g', marker='o')
-
-plt.axvline(x=2460641.430844907, color='g', linestyle='--', label='astro start')
-plt.axvline(x=2460641.453761574, color='r', linestyle='--', label='astro astro (stop)')
-plt.axhline(y=-18, color='r', linestyle='--')  # y=5, red dashed line
-plt.axhline(y=-12, color='g', linestyle='--')  # y=5, red dashed line
+plt.plot(time, solarHorizon, color='g', marker='o')
+plt.xlabel('Time [UTC]', fontsize=12)
+plt.ylabel('Angle of Sun above or below horizon [deg]', fontsize=12)
+plt.title('Position of Sun relative to Sensor Test', fontsize=14)
+plt.axvline(x=2460641.430844907, color='g', linestyle='--', label='astro twilight start [truth time]')
+plt.axvline(x=2460641.453761574, color='r', linestyle='--', label='astro twilight stop [truth time]')
+plt.axhline(y=-18, color='r', linestyle='--', label='-18 [deg]/end of atro twilight')  # y=5, red dashed line
+plt.axhline(y=-12, color='g', linestyle='--', label='-12 [deg]/start of atro twilight')  # y=5, red dashed line
+plt.legend()
 plt.show()
