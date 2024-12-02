@@ -25,4 +25,4 @@ def seenAndUnseenAtSensors(states, sensors):
     seenStates = []
     for sat in seen:
         seenStates.append(stateMap[sat])
-    return seen, unseen, seenStates
+    return list(seen), list(unseen), seenStates

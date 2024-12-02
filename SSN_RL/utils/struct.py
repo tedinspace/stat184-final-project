@@ -2,7 +2,7 @@ def list2map(L):
     '''list to map; list item need field of "name" '''
     M={}
     for item in L:
-        M[L.name]=item
+        M[item.name]=item
     return M
 
 

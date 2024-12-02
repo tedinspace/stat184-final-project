@@ -189,8 +189,8 @@ class Sensor:
         elif truthSatInfo.maneuveredBetween(self.activeTask.availableState.stateValidityEpoch, self.activeTask.stopTime): 
             print("maneuver detected during tracking "+self.activeTask.satID)
             self.activeTask.maneuverDetected = True
-        else: 
-            print("nominal "+self.activeTask.satID)
+        #else: 
+        #    print("nominal "+self.activeTask.satID)
         
         X_est = self.activeTask.availableState.activeObject.at(t)
         X_true = truthSatInfo.activeObject.at(t)

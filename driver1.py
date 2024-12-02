@@ -39,8 +39,7 @@ A = [AgentWrapper("agent 1", allSatNames, [MHR.name])]
 C = StateCatalog(S) # we are initializing with the truth states; this doesn't have to be the case
 
 # scenario loop 
-eventsFromSensor = []
-Successful_Tasks = []
+
 cTime = sConfigs.scenarioEpoch
 
 

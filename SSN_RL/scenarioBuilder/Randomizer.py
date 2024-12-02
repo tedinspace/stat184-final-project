@@ -50,6 +50,7 @@ class Randomizer:
         return satTruth
     
     def randomizeSatTruth(self, inputTleList, sConfigs):
+        ''''''
         return self.randomizeManeuvers(self.randomizeReEpoching(inputTleList, sConfigs), sConfigs)
     
 
