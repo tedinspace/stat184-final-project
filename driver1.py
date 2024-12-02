@@ -10,6 +10,7 @@ from SSN_RL.environment.StateCatalog import StateCatalog
 from SSN_RL.scenarioBuilder.clusters import MUOS_CLUSTER
 from SSN_RL.scenarioBuilder.SSN import MHR
 from SSN_RL.debug.Loggers import EventCounter
+from SSN_RL.utils.time import hrsAfterEpoch
 
 EC = EventCounter()
 
@@ -122,14 +123,18 @@ colors = {
     "MUOS3": 'orange', 
     "MUOS5": 'purple'
 }
+sEpoch = sConfigs.scenarioEpoch
 for task in sensors[MHR.name].completedTasks:
-    ax.plot([task.startTime.tt,task.stopTime.tt ], [1, 1], color=colors[task.satID], linewidth=2)
+    ax.plot([hrsAfterEpoch(sEpoch, task.startTime),hrsAfterEpoch(sEpoch,task.stopTime) ], [1, 1], color=colors[task.satID], linewidth=4)
     
 for satKey in S:
     for m in S[satKey].maneuverList:
-        ax.axvline(x=m.time.tt, color=colors[satKey], linestyle=':', linewidth=2)
+        ax.axvline(x=hrsAfterEpoch(sEpoch,m.time), color=colors[satKey], linestyle=':', linewidth=2)
 for event in uniqueManeuverDetections_states:
-    ax.axvline(x=event.arrivalTime.tt, color=colors[event.satID], linestyle='-.', linewidth=2)
+    ax.axvline(x=hrsAfterEpoch(sEpoch,event.arrivalTime), color=colors[event.satID], linestyle='-.', linewidth=2)
 
+plt.title('Plotted Results of Randomized Actions')
+plt.ylabel('Executed Schedule at Sensor (MHR)')
+plt.xlabel('time [hours after scenario epoch]')
 plt.show()
 

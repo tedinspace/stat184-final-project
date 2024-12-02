@@ -28,13 +28,13 @@ class Sensor:
         '''sensor constructor '''
         self.name = name
         self.modality = SensorModality.UNSPEC
-        self.activeTask = False
-
         self.groundObserver = wgs84.latlon(lla[0], lla[1], lla[2])
 
+        self.activeTask = False
         self.pendingIncomingTasks = []
         self.scheduledTasks = []
         self.pendingOutgoingInformation = []
+        self.completedTasks = []
 
         self.taskDelay = 7.5 # [mins] - time for message to be received by sensor from agent 
         self.taskDelayRand = [-5,5] # [-mins, +mins] randomness added tasking delay 
@@ -49,6 +49,13 @@ class Sensor:
         self.scheduleAheadLimitMins = 30 # [mins]
         self.taskingLengthMins = 5.5 
 
+        
+
+    def reset(self):
+        self.activeTask = False
+        self.pendingIncomingTasks = []
+        self.scheduledTasks = []
+        self.pendingOutgoingInformation = []
         self.completedTasks = []
         
     def updateModality(self, modeEnum):

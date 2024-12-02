@@ -4,6 +4,9 @@ from datetime import datetime
 SPD = 86400
 MPD = 1440
 
+def hrsAfterEpoch(epoch, time):
+    return (time.tt - epoch.tt)*24
+
 def s2frac(s):
     '''seconds --> fraction of a day'''
     return s / SPD
