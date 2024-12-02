@@ -14,7 +14,7 @@ from SSN_RL.debug.Loggers import EventCounter
 EC = EventCounter()
 
 # init configs (epoch + length)
-sConfigs = ScenarioConfigs(load.timescale().utc(2024, 11, 24, 0, 0, 0), 14.5)
+sConfigs = ScenarioConfigs(load.timescale().utc(2024, 11, 24, 0, 0, 0), 12)
 
 # generate true satellites
 S = {}
