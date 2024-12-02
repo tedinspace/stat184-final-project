@@ -1,6 +1,7 @@
 from skyfield.api import EarthSatellite
 from sgp4.ext import rv2coe
 import math
+import random
 import numpy as np
 from SSN_RL.utils.astrodynamics import mu, overrideStr, computeMeanMotion
 from SSN_RL.utils.time import m2frac, t2doy, h2frac
@@ -97,7 +98,9 @@ class Satellite:
 
 class Maneuver:
     def __init__(self,magDV, hoursIntoScenario, sConfigs):
-        self.dir = np.array([.1, .8, .1]) # sums to 1
+        #self.dir = np.array([.1, .8, .1]) 
+        self.dir = np.array([random.random(), random.random(),random.random()])
+        self.dir = self.dir/np.sum(self.dir) # normalize
         self.maneuver = self.dir * magDV
         self.time = sConfigs.scenarioEpoch + h2frac(hoursIntoScenario)
         self.occurred = False

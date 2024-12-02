@@ -46,3 +46,4 @@ def printTleInfo(l1, l2):
     print("mean motion: "+l2[52:63])
     print("rev number: "+l2[63:68])
     print("checksum: "+l2[68])
+

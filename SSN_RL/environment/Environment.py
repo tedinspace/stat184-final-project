@@ -3,19 +3,24 @@ from skyfield.api import load
 
 from SSN_RL.environment.ScenarioConfigs import ScenarioConfigs
 from SSN_RL.environment.StateCatalog import StateCatalog
+from SSN_RL.scenarioBuilder.Randomizer import Randomizer
 from SSN_RL.debug.Loggers import EventCounter
 
 class Environment: 
-    def __init__(self):
-        print("TODO")
+    def __init__(self, inputTleList, sensorList):
+        self.R = Randomizer()
         # randomize epoch and scenario length
-        self.sConfigs = ScenarioConfigs(load.timescale().utc(2024, 11, 24, 0, 0, 0)+random.random(), random.uniform(12, 72))
-        self.sConfigs.updateDT_careful(15) # change scenario time step
+        self.sConfigs = self.R.randomizeScenarioSpecs().updateDT_careful(15)
 
-        self.satTruth = {} # TODO
+        self.satTruth = self.R.randomizeSatTruth(inputTleList, self.sConfigs)
+
         self.stateCatalog = StateCatalog(self.satTruth)
+        
         self.t = self.sConfigs.scenarioEpoch
 
+        # save
+        self.inputTleList = inputTleList
+        # debug
         self.debug_ec = EventCounter()
     
 
