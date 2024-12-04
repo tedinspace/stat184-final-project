@@ -35,7 +35,20 @@ class Environment:
 
 
     def reset(self):
-        # TODO reset the environment/re-int a new run
+        # env
+        self.sConfigs = self.R.randomizeScenarioSpecs().updateDT_careful(15)
+        self.satTruth = self.R.randomizeSatTruth(self.inputTleList, self.sConfigs)
+        self.stateCatalog = StateCatalog(self.satTruth)
+        self.t = self.sConfigs.scenarioEpoch
+
+        self.sensorMap = list2map(self.inputSensorList)
+        for sensorKey in self.sensorMap:
+            self.sensorMap[sensorKey].reset()
+        
+        
+        # debug
+        self.debug_ec = EventCounter()
+        self.debug_uniqueManeuverDetections = []
 
         return self.t, [], self.stateCatalog, False
 

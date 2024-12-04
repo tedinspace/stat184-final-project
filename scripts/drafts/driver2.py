@@ -3,26 +3,31 @@ import matplotlib.pyplot as plt
 from SSN_RL.environment.Agent import AgentWrapper
 from SSN_RL.environment.Environment import Environment
 from SSN_RL.scenarioBuilder.clusters import MUOS_CLUSTER
-from SSN_RL.scenarioBuilder.SSN import MHR, MAUI
+from SSN_RL.scenarioBuilder.SSN import MHR, MAUI, ASCENSION
 from SSN_RL.utils.time import hrsAfterEpoch
 from SSN_RL.utils.vis import seenAndUnseenAtSensors
 from SSN_RL.utils.struct import getNames
 
 
-sensorList = [MHR, MAUI]
+sensorList = [MHR, MAUI, ASCENSION]
 # make sure all satellites can be seen 
 seen, _, stateList = seenAndUnseenAtSensors(MUOS_CLUSTER, sensorList)
-A = [AgentWrapper("agent 1", seen, getNames(sensorList))]
+
 
 env = Environment(stateList, sensorList)
-t, events, stateCat, Done = env.reset()
 
-while Done ==False:
+for i in range(2):
+    print("run "+str(i))
+    
+    A = [AgentWrapper("agent 1", seen, getNames(sensorList))] # reset for agents
+    
+    t, events, stateCat, Done = env.reset()
 
-    actions = {}
-    for agent in A:
-        actions[agent.agentID]=agent.decide(t, events, stateCat)
-    t, events, stateCat, Done = env.step(actions)
+    while Done ==False:
+        actions = {}
+        for agent in A:
+            actions[agent.agentID]=agent.decide(t, events, stateCat)
+        t, events, stateCat, Done = env.step(actions)
 
 
 

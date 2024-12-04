@@ -22,10 +22,13 @@ Note: sometimes I need to run the following command prior to reactivating
 
 ## running files
 
+`python -m scripts.drafts.driver1`
 
-`python -m tests.basic-maneuver-sim.py`
+`python -m scripts.drafts.driver2`
 
-`python -m tests.optical-sensing-test.py`
+`python -m scripts.tests.basic-maneuver-sim   `
+
+`python -m scripts.tests.optical-sensing-test`
 
 
 ## Library Documentation 

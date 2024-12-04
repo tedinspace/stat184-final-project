@@ -81,6 +81,8 @@ class AgentWrapper:
         self._prev_state_key = state_key
         self._prev_actions = actions
         
+        #actions = np.random.randint(low=-1, high=self.nSensors, size=self.nSats)
+
         decisions = {}
         for i in range(self.nSats):
             sat = self.assignedSats[i]
