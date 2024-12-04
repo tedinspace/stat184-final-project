@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from SSN_RL.environment.ScenarioConfigs import ScenarioConfigs
 from SSN_RL.environment.Sensor import SensorResponse
 from SSN_RL.environment.Satellite import Satellite, Maneuver
-from SSN_RL.environment.Agent import AgentWrapper
+from SSN_RL.agent.Agent import AgentWrapper
 from SSN_RL.environment.StateCatalog import StateCatalog
 from SSN_RL.scenarioBuilder.clusters import MUOS_CLUSTER
 from SSN_RL.scenarioBuilder.SSN import MHR

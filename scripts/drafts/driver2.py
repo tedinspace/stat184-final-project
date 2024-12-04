@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from SSN_RL.environment.Agent import AgentWrapper
+from SSN_RL.agent.Agent import AgentWrapper
 from SSN_RL.environment.Environment import Environment
 from SSN_RL.scenarioBuilder.clusters import MUOS_CLUSTER
 from SSN_RL.scenarioBuilder.SSN import MHR, MAUI, ASCENSION

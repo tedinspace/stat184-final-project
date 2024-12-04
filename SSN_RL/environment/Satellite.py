@@ -83,7 +83,7 @@ class Satellite:
             if m.time < t and not m.occurred:
                 self.reestimateTrueState(m, t)
                 m.occurred = True
-                print(self.name+" maneuvered at "+str(t.tt)) # for debugging
+                #print(self.name+" maneuvered at "+str(t.tt)) # for debugging
                 
         # change active object if necessary
         return self.activeObject.at(t)

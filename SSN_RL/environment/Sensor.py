@@ -184,10 +184,10 @@ class Sensor:
     def canAcquire_plus_crystalBall(self, t, truthSatInfo ):
         '''can we acquire on the satellite and indicates if maneuver occurred '''
         if truthSatInfo.maneuveredBetween(self.activeTask.availableState.stateValidityEpoch, t): 
-            print("maneuver detected "+self.activeTask.satID)
+            #print("maneuver detected "+self.activeTask.satID)
             self.activeTask.maneuverDetected = True
         elif truthSatInfo.maneuveredBetween(self.activeTask.availableState.stateValidityEpoch, self.activeTask.stopTime): 
-            print("maneuver detected during tracking "+self.activeTask.satID)
+            #print("maneuver detected during tracking "+self.activeTask.satID)
             self.activeTask.maneuverDetected = True
         #else: 
         #    print("nominal "+self.activeTask.satID)
