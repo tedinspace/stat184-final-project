@@ -3,13 +3,13 @@ import matplotlib.pyplot as plt
 
 from SSN_RL.environment.ScenarioConfigs import ScenarioConfigs
 from SSN_RL.environment.Sensor import SensorResponse
-from SSN_RL.environment.Satellite import Satellite
-from SSN_RL.environment.Manuever import Maneuver
+from SSN_RL.environment.Satellite import Satellite, Maneuver
 from SSN_RL.environment.Agent import AgentWrapper
 from SSN_RL.environment.StateCatalog import StateCatalog
 from SSN_RL.scenarioBuilder.clusters import MUOS_CLUSTER
 from SSN_RL.scenarioBuilder.SSN import MHR
 from SSN_RL.debug.Loggers import EventCounter
+from SSN_RL.utils.time import hrsAfterEpoch
 
 EC = EventCounter()
 
@@ -39,8 +39,7 @@ A = [AgentWrapper("agent 1", allSatNames, [MHR.name])]
 C = StateCatalog(S) # we are initializing with the truth states; this doesn't have to be the case
 
 # scenario loop 
-eventsFromSensor = []
-Successful_Tasks = []
+
 cTime = sConfigs.scenarioEpoch
 
 
@@ -88,7 +87,7 @@ while cTime < sConfigs.scenarioEnd:
         else: 
             curratedEvents.append(event)
             
-    
+   
 
     # 3. get agent's responses
     actions = {}

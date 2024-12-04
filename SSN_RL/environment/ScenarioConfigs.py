@@ -20,4 +20,5 @@ class ScenarioConfigs:
         self.dt = dt
         self.timeDelta = self.dt / SPD
         self.nSteps = round(self.scenarioLengthHours*60*(60/self.dt))
+        return self
 

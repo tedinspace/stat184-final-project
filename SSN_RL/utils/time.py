@@ -1,8 +1,13 @@
 from datetime import datetime
+from skyfield.api import load
 
+defaultEpoch = load.timescale().utc(2024, 11, 24, 0, 0, 0)
 
 SPD = 86400
 MPD = 1440
+
+def hrsAfterEpoch(epoch, time):
+    return (time.tt - epoch.tt)*24
 
 def s2frac(s):
     '''seconds --> fraction of a day'''
