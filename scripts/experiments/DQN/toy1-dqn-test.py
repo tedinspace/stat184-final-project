@@ -1,6 +1,6 @@
 
 import torch
-from SSN_RL.scenarioBuilder.scenarios import ToyEnvironment1
+from SSN_RL.scenarioBuilder.scenarios import ToyEnvironment1,ToyEnvironment1_generalization_test_1
 from SSN_RL.agent.TrainingSpecs import TrainingSpecs
 from SSN_RL.agent.algorithms.NN import QNetwork_Shallow
 from SSN_RL.agent.TrainingSpecs import TrainingSpecs
@@ -13,7 +13,7 @@ from SSN_RL.utils.time import hrsAfterEpoch
 
 import numpy as np
 
-env = ToyEnvironment1()
+env = ToyEnvironment1_generalization_test_1()
 
 satKeys = env.satKeys
 sensorKeys = env.sensorKeys
@@ -80,7 +80,10 @@ colors = {
     'MUOS2': 'red',
     "MUOS3": 'orange', 
     "MUOS4": 'green',
-    "MUOS5": 'purple'
+    "MUOS5": 'purple', 
+    'AEHF 1 (USA 214)': 'red', 
+    'AEHF 2 (USA 235)': 'blue'
+
 }
 
 sEpoch = env.sConfigs.scenarioEpoch
