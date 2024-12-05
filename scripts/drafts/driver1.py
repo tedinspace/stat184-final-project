@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from SSN_RL.environment.ScenarioConfigs import ScenarioConfigs
 from SSN_RL.environment.Sensor import SensorResponse
 from SSN_RL.environment.Satellite import Satellite, Maneuver
-from SSN_RL.agent.Agent import AgentWrapper
+from SSN_RL.agent.QTableAgent import QTableAgent
 from SSN_RL.environment.StateCatalog import StateCatalog
 from SSN_RL.scenarioBuilder.clusters import MUOS_CLUSTER
 from SSN_RL.scenarioBuilder.SSN import MHR
@@ -33,7 +33,7 @@ S[allSatNames[2]].addManeuvers([Maneuver(5.5,8.5, sConfigs)])
 # - sensors
 sensors = {MHR.name: MHR}
 # - agents 
-A = [AgentWrapper("agent 1", allSatNames, [MHR.name])]
+A = [QTableAgent("agent 1", allSatNames, [MHR.name])]
 
 # - catalog 
 C = StateCatalog(S) # we are initializing with the truth states; this doesn't have to be the case
@@ -92,7 +92,8 @@ while cTime < sConfigs.scenarioEnd:
     # 3. get agent's responses
     actions = {}
     for agent in A:
-        actions[agent.agentID]=agent.decide(cTime, curratedEvents, C)
+        a, _ = agent.decide(cTime, curratedEvents, C)
+        actions[agent.agentID]=a
     
     # 4. execute actions 
     # i. send new tasks to appropriate sensors (delays)

@@ -1,7 +1,7 @@
 from SSN_RL.environment.Sensor import SensorResponse
 import numpy as np
 
-class AgentWrapper:
+class QTableAgent:
     def __init__(self, agentID, assignedSats, availableSensors, 
                  learning_rate=0.1, discount_factor=0.95, epsilon=0.1):
         self.agentID = agentID
@@ -30,7 +30,13 @@ class AgentWrapper:
         
         # Initialize Q-table with small random values
         self.Q = {}
+
     
+    def reset(self):
+        self.lostSatellites = set()
+        self.cumulativeRewardOrCost = 0
+
+
     def _get_state_key(self, state):
         """Convert continuous state to discrete key for Q-table"""
         lastSeen = state[self.nSats*2:]
@@ -52,7 +58,6 @@ class AgentWrapper:
     def decide(self, t, events, stateCatalog):
         current_state, reward = self.encodeCurrentState(t, events, stateCatalog)
         self.cumulativeRewardOrCost += reward
-        
         state_key = self._get_state_key(current_state)
         
         actions = np.array([
@@ -93,7 +98,7 @@ class AgentWrapper:
             else:
                 decisions[sat] = self.availableSensors[a]
         
-        return decisions
+        return decisions , reward
 
     def encodeCurrentState(self, t, events, stateCatalog):
         eventEncoding = np.zeros(self.nSats)
@@ -106,15 +111,15 @@ class AgentWrapper:
                 if event.type == SensorResponse.INVALID:
                     rewardOrCost -= 50
                 elif event.type == SensorResponse.INVALID_TIME:
-                    rewardOrCost -= 5
+                    rewardOrCost -= 2.5
                 elif event.type == SensorResponse.DROPPED_SCHEDULING:
-                    rewardOrCost -= 1
+                    rewardOrCost -= 2
                 elif event.type == SensorResponse.DROPPED_LOST:
                     eventEncoding[sat_idx] = 2
                     rewardOrCost -= 100
                     self.lostSatellites.add(event.satID)
                 elif event.type == SensorResponse.COMPLETED_NOMINAL:
-                    rewardOrCost += 15
+                    rewardOrCost += 1
                 elif event.type == SensorResponse.COMPLETED_MANEUVER:
                     eventEncoding[sat_idx] = 1
                     rewardOrCost += 50
@@ -125,6 +130,9 @@ class AgentWrapper:
         ])
         
         rewardOrCost -= np.sum(lastSeen > 240) * 2
+
+
+        #print(self.cumulativeRewardOrCost)
         
         return np.concatenate((eventEncoding, lastSeen)), rewardOrCost
 

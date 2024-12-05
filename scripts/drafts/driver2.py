@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from SSN_RL.agent.Agent import AgentWrapper
+from SSN_RL.agent.QTableAgent import QTableAgent
 from SSN_RL.environment.Environment import Environment
 
 from SSN_RL.scenarioBuilder.clusters import MUOS_CLUSTER
@@ -20,14 +20,15 @@ env = Environment(stateList, sensorList)
 for i in range(1):
     print("run "+str(i))
     
-    A = [AgentWrapper("agent 1", seen, getNames(sensorList))] # reset for agents
+    A = [QTableAgent("agent 1", seen, getNames(sensorList))] # reset for agents
     
     t, events, stateCat, Done = env.reset()
 
     while Done ==False:
         actions = {}
         for agent in A:
-            actions[agent.agentID]=agent.decide(t, events, stateCat)
+            a, _ = agent.decide(t, events, stateCat)
+            actions[agent.agentID]=a
         t, events, stateCat, Done = env.step(actions)
 
 
