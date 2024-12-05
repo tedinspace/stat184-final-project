@@ -8,12 +8,8 @@ from SSN_RL.agent.algorithms.NN import QNetwork_Shallow
 from SSN_RL.agent.algorithms.trivial import randomAction
 from SSN_RL.agent.functions.encode import encode_basic_v1
 from SSN_RL.agent.functions.decode import decodeActions
-from SSN_RL.environment.Environment import Environment
 from SSN_RL.environment.rewards import reward_v1
-from SSN_RL.scenarioBuilder.clusters import MUOS_CLUSTER
-from SSN_RL.scenarioBuilder.SSN import MHR, MAUI, ASCENSION
-from SSN_RL.utils.vis import seenAndUnseenAtSensors
-from SSN_RL.utils.struct import getNames
+from SSN_RL.scenarioBuilder.scenarios import ToyEnvironment1
 
 
 def update_q_network(state, action, reward, next_state, done, q_network, optimizer, gamma=0.99):
@@ -41,15 +37,15 @@ def update_q_network(state, action, reward, next_state, done, q_network, optimiz
     optimizer.step()
 
 
-# create environment
-sensorList = [MHR, MAUI, ASCENSION]
-sensorKeys = getNames(sensorList)
-satKeys, _, stateList = seenAndUnseenAtSensors(MUOS_CLUSTER, sensorList)
-env = Environment(stateList, sensorList)
 
 
-nSensors = len(sensorList)
-nSats = len(satKeys)
+env = ToyEnvironment1()
+
+satKeys = env.satKeys
+sensorKeys = env.sensorKeys
+
+nSensors = env.nSensors
+nSats = env.nSats
 input_dim = nSats*2
 output_dim = nSats
 
