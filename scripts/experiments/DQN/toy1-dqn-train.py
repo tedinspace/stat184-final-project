@@ -11,7 +11,7 @@ from SSN_RL.agent.functions.decode import decodeActions
 from SSN_RL.environment.rewards import reward_v1
 from SSN_RL.scenarioBuilder.scenarios import ToyEnvironment1
 
-
+# SOURCE: https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html 
 def update_q_network(state, action, reward, next_state, done, q_network, optimizer, gamma=0.99):
     # Get Q-values for the current state (shape: [batch_size, action_space_size])
     #print("q_values", q_values)
