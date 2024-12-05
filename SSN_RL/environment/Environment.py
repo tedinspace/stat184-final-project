@@ -1,17 +1,14 @@
-import random
-from skyfield.api import load
-
 from SSN_RL.environment.Sensor import SensorResponse
 from SSN_RL.environment.StateCatalog import StateCatalog
 from SSN_RL.scenarioBuilder.Randomizer import Randomizer
 from SSN_RL.debug.Loggers import EventCounter
-from SSN_RL.utils.struct import list2map
+from SSN_RL.utils.struct import list2map, getNames
 
 class Environment: 
-    def __init__(self, inputTleList, sensorList):
-        self.R = Randomizer()
+    def __init__(self, inputTleList, sensorList, randomizer=Randomizer()):
+        self.R = randomizer
         # randomize epoch and scenario length
-        self.sConfigs = self.R.randomizeScenarioSpecs().updateDT_careful(15)
+        self.sConfigs = self.R.randomizeScenarioSpecs()
 
         self.satTruth = self.R.randomizeSatTruth(inputTleList, self.sConfigs)
         self.sensorMap = list2map(sensorList)
@@ -20,7 +17,12 @@ class Environment:
 
         self.t = self.sConfigs.scenarioEpoch
 
-        # tabs 
+        self.sensorKeys = getNames(self.sensorMap.values())
+        self.satKeys = list(self.satTruth.keys())
+
+        self.nSensors = len(sensorList)
+        self.nSats = len(inputTleList)
+
         
 
         # save
@@ -29,14 +31,13 @@ class Environment:
         
         # debug
         self.debug_ec = EventCounter()
-
         self.debug_uniqueManeuverDetections = []
     
 
 
     def reset(self):
         # env
-        self.sConfigs = self.R.randomizeScenarioSpecs().updateDT_careful(15)
+        self.sConfigs = self.R.randomizeScenarioSpecs()
         self.satTruth = self.R.randomizeSatTruth(self.inputTleList, self.sConfigs)
         self.stateCatalog = StateCatalog(self.satTruth)
         self.t = self.sConfigs.scenarioEpoch

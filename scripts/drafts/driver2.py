@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 
 from SSN_RL.agent.Agent import AgentWrapper
 from SSN_RL.environment.Environment import Environment
+
 from SSN_RL.scenarioBuilder.clusters import MUOS_CLUSTER
 from SSN_RL.scenarioBuilder.SSN import MHR, MAUI, ASCENSION
 from SSN_RL.utils.time import hrsAfterEpoch
@@ -16,7 +17,7 @@ seen, _, stateList = seenAndUnseenAtSensors(MUOS_CLUSTER, sensorList)
 
 env = Environment(stateList, sensorList)
 
-for i in range(2):
+for i in range(1):
     print("run "+str(i))
     
     A = [AgentWrapper("agent 1", seen, getNames(sensorList))] # reset for agents

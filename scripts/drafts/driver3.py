@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import random 
 import numpy as np
 import torch
@@ -6,7 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 from SSN_RL.agent.TrainingSpecs import TrainingSpecs
 from SSN_RL.agent.algorithms.NN import QNetwork_Shallow
-from SSN_RL.agent.algorithms.random import randomAction
+from SSN_RL.agent.algorithms.trivial import randomAction
 from SSN_RL.agent.functions.encode import encode_basic_v1
 from SSN_RL.agent.functions.decode import decodeActions
 from SSN_RL.environment.Environment import Environment

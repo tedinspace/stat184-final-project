@@ -16,6 +16,7 @@ class SensorModality(Enum):
     OPTICS = 3 # Optical Telescope
 
 class SensorResponse(Enum):
+    INVALID_TIME = 0 # in line of sight but wrong time of day
     INVALID = 1 # agent asked sensor to task on state it can't see
     DROPPED_SCHEDULING = 2 # sensor can't schedule task 
     DROPPED_LOST = 3 # sensor tried to look at object, but it wasn't there
@@ -116,13 +117,13 @@ class Sensor:
 
         # 2. make sure that the state sent to sensor is valid
         remainingPendingTasks = []
-        sentInvalidState = []
         for taskExe in tasksToExecute:
             if self.isVisible(taskExe.availableState.activeObject.at(t), t):
                 remainingPendingTasks.append(taskExe)
+            elif  self.hasLineOfSight(taskExe.availableState.activeObject.at(t), t):
+                self.pendingOutgoingInformation.append(EventMessage(SensorResponse.INVALID_TIME, t + (self.responseDelay + random.uniform(self.responseDelayRand[0], self.responseDelayRand[1]) )/MPD, taskExe,[] ))
             else:
                 # state not visible
-                sentInvalidState.append(taskExe)
                 self.pendingOutgoingInformation.append(EventMessage(SensorResponse.INVALID, t + (self.responseDelay + random.uniform(self.responseDelayRand[0], self.responseDelayRand[1]) )/MPD, taskExe,[] ))
         # 3. 
         if self.activeTask:

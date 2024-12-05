@@ -7,6 +7,8 @@ def reward_v1(t, events, stateCatalog, agentID, sat2idx):
         if event.agentID == agentID:
             
             if event.type == SensorResponse.INVALID:
+                rewardOrCost -= 50
+            if event.type == SensorResponse.INVALID_TIME:
                 rewardOrCost -= 5
             elif event.type == SensorResponse.DROPPED_SCHEDULING:
                 rewardOrCost -= 1

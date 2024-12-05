@@ -6,7 +6,7 @@ class ScenarioConfigs:
         
         self.ts  = load.timescale()
 
-        self.dt = 5 # [s] - time step
+        self.dt = 30 # [s] - time step
         self.scenarioEpoch = scenarioEpoch
         self.scenarioLengthHours = scenarioLengthHours
         self.scenarioEnd = self.scenarioEpoch + h2frac(self.scenarioLengthHours)

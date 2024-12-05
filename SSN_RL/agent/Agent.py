@@ -104,6 +104,8 @@ class AgentWrapper:
                 sat_idx = self.sat2idx[event.satID]
                 
                 if event.type == SensorResponse.INVALID:
+                    rewardOrCost -= 50
+                elif event.type == SensorResponse.INVALID_TIME:
                     rewardOrCost -= 5
                 elif event.type == SensorResponse.DROPPED_SCHEDULING:
                     rewardOrCost -= 1
