@@ -2,9 +2,8 @@
 import torch
 from SSN_RL.scenarioBuilder.scenarios import ToyEnvironment1,ToyEnvironment1_generalization_test_1
 from SSN_RL.agent.TrainingSpecs import TrainingSpecs
-from SSN_RL.agent.algorithms.NN import QNetwork_Shallow
+from SSN_RL.agent.DQNAgent import DQNAgent
 from SSN_RL.agent.TrainingSpecs import TrainingSpecs
-from SSN_RL.agent.algorithms.trivial import  noAction
 from SSN_RL.agent.functions.encode import encode_basic_v1
 from SSN_RL.agent.functions.decode import decodeActions
 from SSN_RL.environment.rewards import reward_v1
@@ -13,7 +12,7 @@ from SSN_RL.utils.time import hrsAfterEpoch
 
 import numpy as np
 
-env = ToyEnvironment1_generalization_test_1()
+env = ToyEnvironment1()
 
 satKeys = env.satKeys
 sensorKeys = env.sensorKeys
@@ -24,9 +23,8 @@ input_dim = nSats*2
 output_dim = nSats
 
 
-q_network = QNetwork_Shallow(input_dim, output_dim, [-1, nSensors-1])
-q_network.load_state_dict(torch.load("q_network.pth", weights_only=True))
-q_network.eval() # eval mode
+agent = DQNAgent("agent1", env.satKeys,env.sensorKeys)
+agent.model.load_state_dict(torch.load("./scripts/experiments/DQN/dqn_toy1_v1.pth", weights_only=True))
 
 
 
@@ -45,15 +43,14 @@ for episode in range(TS.num_episodes):
     state = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
     while not Done:
         #action = randomAction(nSensors, nSats)
-        with torch.no_grad():
-            q_values = q_network(state)
-            action =  np.round(q_values.numpy()).astype(int)[0]
+        action = agent.decide(state)
+        action_spec =  np.round(action.numpy()).astype(int)
 
-        t, events, stateCat, Done = env.step({agentID: decodeActions(action, satKeys, sensorKeys)})
-        next_state = encode_basic_v1(t, events, stateCat, agentID, sat2idx)
-        next_state = torch.tensor(next_state, dtype=torch.float32).unsqueeze(0) 
-
-        reward =  reward_v1(t, events, stateCat, agentID, sat2idx)
+        t, events, stateCat, Done = env.step({agent.agentID: decodeActions(action_spec, agent.assigned_sats, agent.assigned_sensors)})
+        next_state = encode_basic_v1(t, events, stateCat, agent.agentID, agent.sat2idx)
+        
+        #next_state = torch.tensor(next_state, dtype=torch.float32).unsqueeze(0) 
+        reward =  reward_v1(t, events, stateCat, agent.agentID, agent.sat2idx)
 
         state = next_state
         total_reward += reward

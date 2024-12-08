@@ -9,15 +9,15 @@ def reward_v1(t, events, stateCatalog, agentID, sat2idx):
             if event.type == SensorResponse.INVALID:
                 rewardOrCost -= 50
             if event.type == SensorResponse.INVALID_TIME:
-                rewardOrCost -= 5
+                rewardOrCost -= 2
             elif event.type == SensorResponse.DROPPED_SCHEDULING:
-                rewardOrCost -= 1
+                rewardOrCost -= 2
             elif event.type == SensorResponse.DROPPED_LOST:
                 rewardOrCost -= 1000
             elif event.type == SensorResponse.COMPLETED_NOMINAL:
-                rewardOrCost += 15
+                rewardOrCost += 1
             elif event.type == SensorResponse.COMPLETED_MANEUVER:
-                rewardOrCost += 50
+                rewardOrCost += 4
     
     lastSeen = np.array([
         stateCatalog.lastSeen_mins(t, sat) 

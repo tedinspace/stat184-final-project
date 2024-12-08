@@ -4,12 +4,16 @@
 
 1. create conda environment with micromamba 
 
+`micromamba create -n 184-final-project-rl -c conda-forge -y python=3.10`
+
+it used to be
+
 `micromamba create -n 184-final-project -c conda-forge -y python=3.12.4`
 
 2. activate environment 
 
 
-`micromamba activate 184-final-project`
+`micromamba activate 184-final-project-rl`
 
 
 Note: sometimes I need to run the following command prior to reactivating
@@ -26,9 +30,11 @@ Note: sometimes I need to run the following command prior to reactivating
 
 `python -m scripts.drafts.driver2`
 
-`python -m scripts.tests.basic-maneuver-sim   `
+`python -m scripts.tests.basic-maneuver-sim`
 
 `python -m scripts.tests.optical-sensing-test`
+
+`python -m scripts.experiments.DQN.toy1-dqn-train`
 
 
 ## Library Documentation 
