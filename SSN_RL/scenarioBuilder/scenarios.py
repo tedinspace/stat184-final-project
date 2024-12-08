@@ -12,7 +12,9 @@ def ToyEnvironment1():
     R.maneuverProb=1
     R.maneuverCountRange = [1,1]
     R.scenarioLengthRange = [6,6]
-    return Environment(states, sensor, R)
+    env = Environment(states, sensor, R)
+    env.sConfigs.updateDT_careful(5*60)
+    return env
 
 
 def ToyEnvironment1_generalization_test_1():
@@ -23,5 +25,7 @@ def ToyEnvironment1_generalization_test_1():
     R.maneuverProb=1
     R.maneuverCountRange = [2,4]
     R.scenarioLengthRange = [48,48]
-    return Environment(states, sensor, R)
+    env = Environment(states, sensor, R)
+    env.sConfigs.updateDT_careful(5*60)
+    return env
 

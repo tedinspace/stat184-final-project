@@ -24,6 +24,7 @@ class SensorResponse(Enum):
     COMPLETED_MANEUVER = 5 # sensor completed tasking and discovered a maneuver
 
 
+
 class Sensor:
     def __init__(self, name, lla):
         '''sensor constructor '''
