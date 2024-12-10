@@ -11,7 +11,7 @@ import datetime
 def reward_custom(t, events, stateCatalog, agentID, sat2idx, last_tasked):
     rewardOrCost = 0
     last_tasked = (t.tt - last_tasked)*MPD
-    rewardOrCost -= np.sum(last_tasked < 15) * 2
+    #rewardOrCost -= np.sum(last_tasked < 15) * 2
     
     for event in events:
         if event.agentID == agentID:
@@ -25,9 +25,9 @@ def reward_custom(t, events, stateCatalog, agentID, sat2idx, last_tasked):
             elif event.type == SensorResponse.DROPPED_LOST:
                 rewardOrCost -= 1000
             elif event.type == SensorResponse.COMPLETED_NOMINAL:
-                rewardOrCost += 1
-            elif event.type == SensorResponse.COMPLETED_MANEUVER:
                 rewardOrCost += 4
+            elif event.type == SensorResponse.COMPLETED_MANEUVER:
+                rewardOrCost += 50
     
     lastSeen = np.array([
         stateCatalog.lastSeen_mins(t, sat) 
@@ -75,7 +75,8 @@ for episode in range(num_episodes):
         state = next_state
         total_reward += reward
     
-    # decay epsilon 
+    if episode % 2 == 0:
+        agent.target_model.load_state_dict(agent.model.state_dict())
     if (episode + 1) % 10 == 0:
         saved_rewards.append(total_reward)
         saved_eps.append(agent.eps_threshold)

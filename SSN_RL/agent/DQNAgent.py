@@ -97,6 +97,14 @@ class DQNAgent():
             # action that maximizes Q*(s',a';THETA)  
             with torch.no_grad():
                 return self.model(state).flatten().cpu().data
+    def decide_trained(self, state):
+        '''handles agents decision; epsilon greedy'''
+        # select action with highest q-value
+        state = torch.FloatTensor(np.array(state).reshape(1,-1)).to(DEVICE)
+            
+        # action that maximizes Q*(s',a';THETA)  
+        with torch.no_grad():
+            return self.model(state).flatten().cpu().data
             
     def learn(self):
         ''''''

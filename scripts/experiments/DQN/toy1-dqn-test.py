@@ -43,7 +43,7 @@ for episode in range(TS.num_episodes):
     state = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
     while not Done:
         #action = randomAction(nSensors, nSats)
-        action = agent.decide(state)
+        action = agent.decide_trained(state)
         action_spec =  np.round(action.numpy()).astype(int)
 
         t, events, stateCat, Done = env.step({agent.agentID: decodeActions(action_spec, agent.assigned_sats, agent.assigned_sensors)})

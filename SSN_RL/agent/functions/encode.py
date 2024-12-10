@@ -39,6 +39,7 @@ def encode_basic_v2(t, events, stateCatalog, agentID, sat2idx):
             if event.type == SensorResponse.DROPPED_LOST:
                 eventEncoding[sat_idx] = 6
 
+    eventEncoding = eventEncoding*100
         
     lastSeen = np.array([
         stateCatalog.lastSeen_mins(t, sat) 
