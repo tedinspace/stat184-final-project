@@ -4,11 +4,13 @@ import matplotlib.pyplot as plt
 from SSN_RL.utils.time import hrsAfterEpoch
 from SSN_RL.environment.rewards import reward_v1
 
+import datetime
 
 
-
+start = datetime.datetime.now()
 env = ToyEnvironment1()
-t, events, stateCat, Done = env.reset()
+
+t, events, stateCat, Done = env.reset(deltaT=60*5)
 
 
 agent = HeuristicAgent("agent1", env.satKeys,env.sensorKeys)
@@ -20,7 +22,8 @@ while not Done:
     reward = reward_v1(t, events, stateCat, agent.agentID, agent.sat2idx)
     total_reward += reward
     
-
+elapsed = datetime.datetime.now() - start
+print('Total time:',str(elapsed.total_seconds()), ' [s]')
 
 # - - - - - - - - - - - - - - - - SCENARIO VISUALIZATION  - - - - - - - - - - - - - - - -
 env.debug_ec.display()

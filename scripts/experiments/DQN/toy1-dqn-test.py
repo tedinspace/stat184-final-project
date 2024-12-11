@@ -9,7 +9,7 @@ from SSN_RL.agent.functions.decode import decodeActions
 from SSN_RL.environment.rewards import reward_v1
 import matplotlib.pyplot as plt
 from SSN_RL.utils.time import hrsAfterEpoch
-
+import datetime
 import numpy as np
 
 env = ToyEnvironment1()
@@ -35,26 +35,30 @@ sat2idx = {sat: idx for idx, sat in enumerate(satKeys)}
 TS = TrainingSpecs()
 TS.num_episodes=1
 epsilon = .1
-
+start = datetime.datetime.now()
 for episode in range(TS.num_episodes):
     total_reward = 0
-    t, events, stateCat, Done = env.reset()
-    state = encode_basic_v1(t, events, stateCat, agentID, sat2idx)
-    state = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
+    t, events, stateCat, Done = env.reset(deltaT=60*5)
+    state = agent.encodeState(t, stateCat)
+    i = 0
     while not Done:
-        #action = randomAction(nSensors, nSats)
-        action = agent.decide_trained(state)
-        action_spec =  np.round(action.numpy()).astype(int)
-
-        t, events, stateCat, Done = env.step({agent.agentID: decodeActions(action_spec, agent.assigned_sats, agent.assigned_sensors)})
-        next_state = encode_basic_v1(t, events, stateCat, agent.agentID, agent.sat2idx)
+        action, actions_decoded = agent.decide_testing(t, events, stateCat)
         
-        #next_state = torch.tensor(next_state, dtype=torch.float32).unsqueeze(0) 
-        reward =  reward_v1(t, events, stateCat, agent.agentID, agent.sat2idx)
+
+        reward = reward_v1(t, events, stateCat, agent.agentID, agent.sat2idx)
+        t, events, stateCat, Done = env.step(actions_decoded)
+
+        next_state = agent.encodeState(t, stateCat)
+        
+        start = datetime.datetime.now()
+        agent.step(state, action, reward, next_state, Done)
+        #print('Total time:',str((datetime.datetime.now() - start).total_seconds()), ' [s]')
 
         state = next_state
         total_reward += reward
+        i+=1
     
+    print(i)
     # decay epsilon 
     epsilon = max(TS.min_epsilon, epsilon * TS.epsilon_decay)
     if (episode + 1) % 10 == 0:

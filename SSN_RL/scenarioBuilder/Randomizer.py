@@ -3,7 +3,7 @@ import random
 from SSN_RL.environment.ScenarioConfigs import ScenarioConfigs
 from SSN_RL.environment.Satellite import Satellite, Maneuver
 
-from SSN_RL.utils.time import defaultEpoch
+from SSN_RL.utils.time import defaultEpoch, defaultDeltaT
 
 class Randomizer:
     def __init__(self):
@@ -25,9 +25,11 @@ class Randomizer:
         '''randomize scenario length; returns length in hours'''
         return random.uniform(self.scenarioLengthRange[0],self.scenarioLengthRange[1])
 
-    def randomizeScenarioSpecs(self):
+    def randomizeScenarioSpecs(self, deltaT=defaultDeltaT):
         ''''''
-        return ScenarioConfigs(self.randomizeEpoch(), self.randomizeScenarioLength())
+        tmp = ScenarioConfigs(self.randomizeEpoch(), self.randomizeScenarioLength())
+        tmp.updateDT_careful(deltaT)
+        return tmp
 
     def randomizeReEpoching(self, inputTleList, sConfigs):
         ''''''

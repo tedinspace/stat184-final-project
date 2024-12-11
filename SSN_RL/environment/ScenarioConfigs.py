@@ -1,12 +1,12 @@
 from skyfield.api import load
-from SSN_RL.utils.time import SPD, h2frac
+from SSN_RL.utils.time import SPD, h2frac, defaultDeltaT
 class ScenarioConfigs:
     def __init__(self, scenarioEpoch, scenarioLengthHours):
         
         
         self.ts  = load.timescale()
 
-        self.dt = 30 # [s] - time step
+        self.dt = defaultDeltaT # [s] - time step
         self.scenarioEpoch = scenarioEpoch
         self.scenarioLengthHours = scenarioLengthHours
         self.scenarioEnd = self.scenarioEpoch + h2frac(self.scenarioLengthHours)

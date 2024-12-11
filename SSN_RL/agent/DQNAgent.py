@@ -39,7 +39,7 @@ class DQNAgent():
 
 
     '''
-    def __init__(self,agentID, assigned_sats, assigned_sensors, LR = 1e-3, mem_size=1000000, batch_size = 50, gamma = 0.99, epsilon=1, epsilon_dec=.9999, epsilon_min=0.05):
+    def __init__(self,agentID, assigned_sats, assigned_sensors, LR = 1e-3, mem_size=10000, batch_size = 10, gamma = 0.99, epsilon=1, epsilon_dec=.9999, epsilon_min=0.05):
         self.agentID = agentID
         self.num_sats = len(assigned_sats)
         self.num_sensors = len(assigned_sensors)
@@ -87,15 +87,13 @@ class DQNAgent():
         # update step count
         self.steps_taken += 1
 
-    def getLastSeenLastTasked(self,t, stateCat):
-        # compute last tasked by agent in mins
-        last_tasked_mins_ago = (t.tt - self.last_tasked)*MPD
+    def getLastSeenLastTasked(self, t, stateCat):
+        # Using vectorized operations instead of a list comprehension
+        last_tasked_mins_ago = (t.tt - self.last_tasked) * MPD
         last_tasked_mins_ago[last_tasked_mins_ago < 0] = -1
-        # last seen in mins
-        lastSeen = np.array([
-            stateCat.lastSeen_mins(t, sat) 
-            for sat in self.sat2idx.keys()
-        ])
+    
+        # Vectorized computation of lastSeen for all satellites
+        lastSeen = np.array([stateCat.lastSeen_mins(t, sat) for sat in self.sat2idx.keys()])
         return lastSeen, last_tasked_mins_ago
     
     def encodeState(self, t,stateCat):
@@ -131,6 +129,11 @@ class DQNAgent():
         # return encoded and decoded actions
         return actions, {self.agentID: decodeActions(action_spec, self.assigned_sats, self.assigned_sensors)}
 
+    def decide_testing(self,t, events, stateCat):
+        lastSeen, last_tasked_mins_ago = self.getLastSeenLastTasked(t, stateCat)
+        actions = self.decide_on_policy(np.concatenate((lastSeen, last_tasked_mins_ago)))
+        action_spec =  np.round(actions.numpy()).astype(int)
+        return actions, {self.agentID: decodeActions(action_spec, self.assigned_sats, self.assigned_sensors)}
 
     def decide_on_policy(self, state):
         '''handles agents decision; epsilon greedy'''
@@ -142,9 +145,15 @@ class DQNAgent():
             return self.model(state).flatten().cpu().data
             
     def learn(self):
-        ''''''
-        # Sample random minibatch of transitions from Experience Replay
         state, _, reward, new_state, done = self.memory.sample()
+
+        
+        # Move everything to the device at once
+        state = state.to(DEVICE)
+        new_state = new_state.to(DEVICE)
+        reward = reward.to(DEVICE)
+        done = done.to(DEVICE)
+        # Sample random minibatch of transitions from Experience Replay
         # Computes Q(s_{curr},a') then chooses columns of actions that were taken for each batch
         q_eval = self.model(state)
 

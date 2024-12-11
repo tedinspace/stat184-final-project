@@ -3,6 +3,7 @@ from SSN_RL.environment.StateCatalog import StateCatalog
 from SSN_RL.scenarioBuilder.Randomizer import Randomizer
 from SSN_RL.debug.Loggers import EventCounter
 from SSN_RL.utils.struct import list2map, getNames
+from SSN_RL.utils.time import defaultDeltaT
 
 class Environment: 
     def __init__(self, inputTleList, sensorList, randomizer=Randomizer()):
@@ -35,9 +36,9 @@ class Environment:
     
 
 
-    def reset(self):
+    def reset(self, deltaT=defaultDeltaT):
         # env
-        self.sConfigs = self.R.randomizeScenarioSpecs()
+        self.sConfigs = self.R.randomizeScenarioSpecs(deltaT=deltaT)
         self.satTruth = self.R.randomizeSatTruth(self.inputTleList, self.sConfigs)
         self.stateCatalog = StateCatalog(self.satTruth)
         self.t = self.sConfigs.scenarioEpoch
