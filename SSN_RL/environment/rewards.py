@@ -24,7 +24,28 @@ def reward_v1(t, events, stateCatalog, agentID, sat2idx):
         for sat in sat2idx.keys()
     ])
     
-    rewardOrCost -= np.sum(lastSeen > 90) * 2
+    #rewardOrCost -= np.sum(lastSeen > 90) * 2
     
     return rewardOrCost
 
+def reward_v2_proto(t, events, stateCatalog, agentID, sat2idx, last_tasked):
+    rewardOrCost = 0
+    
+    for event in events:
+        if event.agentID == agentID:
+            
+            if event.type == SensorResponse.INVALID:
+                rewardOrCost -= 50
+            elif event.type == SensorResponse.INVALID_TIME:
+                rewardOrCost -= 2
+            elif event.type == SensorResponse.DROPPED_SCHEDULING:
+                rewardOrCost -= 2
+            elif event.type == SensorResponse.DROPPED_LOST:
+                rewardOrCost -= 1000
+            elif event.type == SensorResponse.COMPLETED_NOMINAL:
+                rewardOrCost += 1
+            elif event.type == SensorResponse.COMPLETED_MANEUVER:
+                rewardOrCost += 40
+
+    
+    

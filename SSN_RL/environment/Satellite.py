@@ -25,6 +25,7 @@ class Satellite:
         self.noEventObject_debugging = EarthSatellite(l1, l2, name, sConfigs.ts)
 
         self.maneuverList = []
+        self.nManeuvers = 0
         # for referencing
         self.timeScale =  sConfigs.ts
         self.scenarioEpoch =  sConfigs.scenarioEpoch
@@ -40,6 +41,7 @@ class Satellite:
     def addManeuvers(self, maneuverList):
         # add them but puts them in time order first
         self.maneuverList = sorted(maneuverList, key=lambda x: x.time)
+        self.nManeuvers = len(self.maneuverList)
 
     def reestimateTrueState(self, maneuver, t):
         # > save previous active state for debugging

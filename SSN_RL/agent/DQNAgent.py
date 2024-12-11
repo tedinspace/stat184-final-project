@@ -5,8 +5,10 @@ import torch.optim as optim
 import gym
 from collections import deque
 
+from SSN_RL.agent.functions.decode import decodeActions
 import numpy as np
 import random 
+from SSN_RL.utils.time import MPD
 
 
 DEVICE = torch.device(
@@ -57,6 +59,8 @@ class DQNAgent():
         # memory
         self.memory = ReplayMemory(mem_size, batch_size)
         self.steps_taken = 0
+
+        self.last_tasked = np.ones(self.num_sats)*1e8
         
         # model
         self.model = QNetwork(self.num_sats*2,  self.num_sats, -1, self.num_sensors-1).to(DEVICE)
@@ -68,6 +72,8 @@ class DQNAgent():
         self.action_space = gym.spaces.Box(low=-1, high=self.num_sensors-1, shape=(self.num_sats,), dtype=np.int32)
 
 
+    def reset(self):
+        self.last_tasked =  np.ones(self.num_sats)*1e8
         
     def step(self, state, action, reward, new_state, done):
         '''call each step of the experiment; handles memory and learning'''
@@ -81,23 +87,52 @@ class DQNAgent():
         # update step count
         self.steps_taken += 1
 
-    def decide(self, state):
-        '''handles agents decision; epsilon greedy'''
+    def getLastSeenLastTasked(self,t, stateCat):
+        # compute last tasked by agent in mins
+        last_tasked_mins_ago = (t.tt - self.last_tasked)*MPD
+        last_tasked_mins_ago[last_tasked_mins_ago < 0] = -1
+        # last seen in mins
+        lastSeen = np.array([
+            stateCat.lastSeen_mins(t, sat) 
+            for sat in self.sat2idx.keys()
+        ])
+        return lastSeen, last_tasked_mins_ago
+    
+    def encodeState(self, t,stateCat):
+        lastSeen, last_tasked_mins_ago = self.getLastSeenLastTasked(t, stateCat)
+        return np.concatenate((lastSeen, last_tasked_mins_ago))
+
+
+    def decide(self,t, events, stateCat):
+        # update epsilon
         self.eps_threshold = max(self.epsilon_min, self.eps_threshold * self.epsilon_dec)
-        #self.eps_threshold = self.epsilon_min + (self.epsilon - self.epsilon_min)*math.exp(-1*self.steps_taken/self.epsilon_dec)
         
+        lastSeen, last_tasked_mins_ago = self.getLastSeenLastTasked(t, stateCat)
+
         if np.random.rand() < self.eps_threshold:
-            # P(random action) = epsilon
-            return torch.from_numpy(self.action_space.sample())
+            # - random
+            #actions = torch.from_numpy(self.action_space.sample())
+            bool_arr = ((last_tasked_mins_ago > 30) | (last_tasked_mins_ago == -1)) & (lastSeen > 45)
+            actions = np.ones(self.num_sats)*-1
+            actions[bool_arr] = np.random.randint(0, self.num_sensors, size=np.sum(bool_arr))
+            action_spec = actions
+            actions = torch.from_numpy(actions)
+
+        else:
+            actions = self.decide_on_policy(np.concatenate((lastSeen, last_tasked_mins_ago)))
+            action_spec =  np.round(actions.numpy()).astype(int)
         
-        else: 
-            # select action with highest q-value
-            state = torch.FloatTensor(np.array(state).reshape(1,-1)).to(DEVICE)
-            
-            # action that maximizes Q*(s',a';THETA)  
-            with torch.no_grad():
-                return self.model(state).flatten().cpu().data
-    def decide_trained(self, state):
+
+        
+
+
+        # update task records 
+        self.last_tasked[ actions != -1] = np.ones(len(self.last_tasked[ actions != -1]))*t.tt
+        # return encoded and decoded actions
+        return actions, {self.agentID: decodeActions(action_spec, self.assigned_sats, self.assigned_sensors)}
+
+
+    def decide_on_policy(self, state):
         '''handles agents decision; epsilon greedy'''
         # select action with highest q-value
         state = torch.FloatTensor(np.array(state).reshape(1,-1)).to(DEVICE)
@@ -110,7 +145,6 @@ class DQNAgent():
         ''''''
         # Sample random minibatch of transitions from Experience Replay
         state, _, reward, new_state, done = self.memory.sample()
-      
         # Computes Q(s_{curr},a') then chooses columns of actions that were taken for each batch
         q_eval = self.model(state)
 
