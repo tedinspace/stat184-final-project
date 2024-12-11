@@ -27,7 +27,7 @@ class HeuristicAgent:
         last_tasked_mins_ago[last_tasked_mins_ago < 0] = -1
         
         # select actions
-        bool_arr = ((last_tasked_mins_ago > 30) | (last_tasked_mins_ago == -1)) & (lastSeen > 45)
+        bool_arr = ((last_tasked_mins_ago > 30) | (last_tasked_mins_ago == -1)) & (lastSeen > 60)
         actions = np.ones(self.num_sats)*-1
         actions[bool_arr] = np.random.randint(0, self.num_sensors, size=np.sum(bool_arr))
 

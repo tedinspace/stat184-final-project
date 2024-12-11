@@ -6,11 +6,11 @@ import datetime
 
 
 file_prefix = './scripts/experiments/DQN/dqn_toy1_v1'
-
+#print("FILE SAVE IS COMMENTED OUT--- WARNING")
 env = ToyEnvironment1()
 
 agent = DQNAgent("agent1", env.satKeys,env.sensorKeys)
-num_episodes = 10
+num_episodes = 200
 
 saved_rewards = []
 saved_eps = []
@@ -18,14 +18,13 @@ start = datetime.datetime.now()
 
 for episode in range(num_episodes):
     total_reward = 0
-    t, events, stateCat, Done = env.reset()
-    env.sConfigs.updateDT_careful(5*60)
+    t, events, stateCat, Done = env.reset(deltaT=5*60)
     agent.reset()
+    state = agent.encodeState(t, stateCat)
 
     while not Done:
         # take actions
         action, actions_decoded = agent.decide(t, events, stateCat)
-        state = agent.encodeState(t, stateCat)
 
         reward = reward_v1(t, events, stateCat, agent.agentID, agent.sat2idx)
         t, events, stateCat, Done = env.step(actions_decoded)
@@ -43,12 +42,13 @@ for episode in range(num_episodes):
         saved_eps.append(agent.eps_threshold)
         print(f"Episode {episode + 1}/{num_episodes}, Total Reward: {total_reward}, Epsilon: {agent.eps_threshold:.4f}")
 
-    elapsed = datetime.datetime.now() - start
-    print('Total time:',str((datetime.datetime.now() - start).total_seconds()), ' [s]')
+    #elapsed = datetime.datetime.now() - start
+    #print('Total time:',str((datetime.datetime.now() - start).total_seconds()), ' [s]')
 
 end = datetime.datetime.now()
 elapsed = end - start
 print('Total time:',str(elapsed.total_seconds()/60), 'mins')
+print(total_reward)
 
 torch.save(agent.model.state_dict(), file_prefix+".pth")
 with open(file_prefix+"_rewards.txt", 'w') as file:

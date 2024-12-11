@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import gym
 from collections import deque
-
+from SSN_RL.agent.algorithms.trivial import randomAction
 from SSN_RL.agent.functions.decode import decodeActions
 import numpy as np
 import random 
@@ -39,7 +39,7 @@ class DQNAgent():
 
 
     '''
-    def __init__(self,agentID, assigned_sats, assigned_sensors, LR = 1e-3, mem_size=10000, batch_size = 10, gamma = 0.99, epsilon=1, epsilon_dec=.9999, epsilon_min=0.05):
+    def __init__(self,agentID, assigned_sats, assigned_sensors, LR = 1e-3, mem_size=100000, batch_size = 50, gamma = 0.99, epsilon=1, epsilon_dec=.999, epsilon_min=0.05):
         self.agentID = agentID
         self.num_sats = len(assigned_sats)
         self.num_sensors = len(assigned_sensors)
@@ -110,9 +110,12 @@ class DQNAgent():
         if np.random.rand() < self.eps_threshold:
             # - random
             #actions = torch.from_numpy(self.action_space.sample())
-            bool_arr = ((last_tasked_mins_ago > 30) | (last_tasked_mins_ago == -1)) & (lastSeen > 45)
+            bool_arr = ((last_tasked_mins_ago > 15) | (last_tasked_mins_ago == -1)) & (lastSeen > 30)
             actions = np.ones(self.num_sats)*-1
+            
             actions[bool_arr] = np.random.randint(0, self.num_sensors, size=np.sum(bool_arr))
+            #if np.random.rand()< .2:
+            #actions = randomAction(self.num_sensors, self.num_sats)
             action_spec = actions
             actions = torch.from_numpy(actions)
 
@@ -168,9 +171,13 @@ class DQNAgent():
         # Compute MSE loss
         loss = F.mse_loss(q_eval, q_target)
 
+
         # Stochastic gradient descent on the loss function and does backpropragation
         self.optimizer.zero_grad()
         loss.backward()
+        for param in self.model.parameters():
+            # Clip the error term to be between -1 and 1
+            param.grad.data.clamp_(-1,1)
         self.optimizer.step()
 
 class QNetwork(nn.Module):
@@ -189,8 +196,7 @@ class QNetwork(nn.Module):
         x = self.l1(state)
         x = F.relu(x)
         x = F.relu(self.l2(x))
-        action_values = torch.tanh(self.l3(x)) * self.action_range / 2 + (self.min_action + self.max_action) / 2
-        return action_values
+        return torch.tanh(self.l3(x)) * self.action_range / 2 + (self.min_action + self.max_action) / 2
 
 class ReplayMemory:
     def __init__(self, buffer_size, batch_size):

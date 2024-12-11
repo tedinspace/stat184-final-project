@@ -4,13 +4,10 @@ from SSN_RL.scenarioBuilder.scenarios import ToyEnvironment1,ToyEnvironment1_gen
 from SSN_RL.agent.TrainingSpecs import TrainingSpecs
 from SSN_RL.agent.DQNAgent import DQNAgent
 from SSN_RL.agent.TrainingSpecs import TrainingSpecs
-from SSN_RL.agent.functions.encode import encode_basic_v1
-from SSN_RL.agent.functions.decode import decodeActions
 from SSN_RL.environment.rewards import reward_v1
 import matplotlib.pyplot as plt
 from SSN_RL.utils.time import hrsAfterEpoch
 import datetime
-import numpy as np
 
 env = ToyEnvironment1()
 

@@ -11,41 +11,20 @@ def reward_v1(t, events, stateCatalog, agentID, sat2idx):
             if event.type == SensorResponse.INVALID_TIME:
                 rewardOrCost -= 2
             elif event.type == SensorResponse.DROPPED_SCHEDULING:
-                rewardOrCost -= 2
+                rewardOrCost -= 3
             elif event.type == SensorResponse.DROPPED_LOST:
                 rewardOrCost -= 1000
             elif event.type == SensorResponse.COMPLETED_NOMINAL:
-                rewardOrCost += 1
+                rewardOrCost += 2
             elif event.type == SensorResponse.COMPLETED_MANEUVER:
-                rewardOrCost += 4
+                rewardOrCost += 40
     
-    lastSeen = np.array([
-        stateCatalog.lastSeen_mins(t, sat) 
-        for sat in sat2idx.keys()
-    ])
     
-    #rewardOrCost -= np.sum(lastSeen > 90) * 2
+    lastSeen = np.array([stateCatalog.lastSeen_mins(t, sat) for sat in sat2idx.keys()])
+    
+    rewardOrCost -= np.sum(lastSeen > 90) * 2
+    
     
     return rewardOrCost
 
-def reward_v2_proto(t, events, stateCatalog, agentID, sat2idx, last_tasked):
-    rewardOrCost = 0
-    
-    for event in events:
-        if event.agentID == agentID:
-            
-            if event.type == SensorResponse.INVALID:
-                rewardOrCost -= 50
-            elif event.type == SensorResponse.INVALID_TIME:
-                rewardOrCost -= 2
-            elif event.type == SensorResponse.DROPPED_SCHEDULING:
-                rewardOrCost -= 2
-            elif event.type == SensorResponse.DROPPED_LOST:
-                rewardOrCost -= 1000
-            elif event.type == SensorResponse.COMPLETED_NOMINAL:
-                rewardOrCost += 1
-            elif event.type == SensorResponse.COMPLETED_MANEUVER:
-                rewardOrCost += 40
 
-    
-    
