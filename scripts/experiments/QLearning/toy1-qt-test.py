@@ -33,7 +33,7 @@ for episode in range(EPISODES):
 
     while not Done:
         # take actions
-        action, actions_decoded, action_disc = agent.decide(t, events, stateCat)
+        action, actions_decoded, action_disc = agent.decide_on_policy(t, events, stateCat)
 
         # get reward
         reward = reward_v1(t, events, stateCat, agent.agentID, agent.sat2idx)
@@ -47,7 +47,6 @@ for episode in range(EPISODES):
         
 
         agent.updateQTable(state_disc, action_disc, reward, next_state_disc)
-                
 
         state = next_state
         state_disc = next_state_disc

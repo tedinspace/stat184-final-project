@@ -69,7 +69,7 @@ while cTime < sConfigs.scenarioEnd:
         elif event.type == SensorResponse.COMPLETED_MANEUVER:
             # --> update catalog with maneuver
             if not C.wasManeuverAlreadyDetected(cTime, event.satID, event.newState): 
-                EC.increment("unique maneuver detection")
+                EC.increment(SensorResponse.UNIQUE_MAN)
                 uniqueManeuverDetections_states.append(event)  
             else:
                 # if not unique, just credit as state update

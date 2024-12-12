@@ -65,6 +65,19 @@ class QAgent:
         # decode for env
         return actions, {self.agentID: decodeActions(actions, self.assigned_sats, self.assigned_sensors)}, tuple([int(a+1) for a in actions])
     
+    def decide_on_policy(self,t,events,stateCat):
+        state = self.discretizeState(self.encodeState(t, stateCat))
+            
+        actions = np.unravel_index(np.argmax(self.qTable[state]), self.qTable[state].shape)
+        actions_tuple = actions
+        actions = np.array(list(actions))-1
+        
+        
+        # update task records 
+        self.last_tasked[ actions != -1] = np.ones(len(self.last_tasked[ actions != -1]))*t.tt
+        # return encoded and decoded actions
+        return actions, {self.agentID: decodeActions(actions, self.assigned_sats, self.assigned_sensors)}, actions_tuple
+    
     def decide(self,t, events, stateCat):
         # update epsilon
         self.eps_threshold = max(self.epsilon_min, self.eps_threshold * self.epsilon_dec)

@@ -93,7 +93,7 @@ class Environment:
             elif event.type == SensorResponse.COMPLETED_MANEUVER:
                 # --> update catalog with maneuver
                 if not self.stateCatalog.wasManeuverAlreadyDetected(self.t, event.satID, event.newState): 
-                    self.debug_ec.increment("unique maneuver detection")
+                    self.debug_ec.increment(SensorResponse.UNIQUE_MAN)
                     self.debug_uniqueManeuverDetections.append(event)  
                 else:
                     # if not unique, just credit as state update

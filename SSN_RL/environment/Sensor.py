@@ -22,7 +22,7 @@ class SensorResponse(Enum):
     DROPPED_LOST = 3 # sensor tried to look at object, but it wasn't there
     COMPLETED_NOMINAL = 4 # sensor completed tasking, nothing occurred 
     COMPLETED_MANEUVER = 5 # sensor completed tasking and discovered a maneuver
-
+    UNIQUE_MAN = "unique maneuver detection"
 
 
 class Sensor:
