@@ -9,10 +9,10 @@ import dill
 start = datetime.datetime.now()
 file_prefix = './scripts/experiments/QLearning/ql_toy1_v2'
 
-EPISODES = 1
+EPISODES = 2
 
 
-env = ToyEnvironment1()
+env = ToyEnvironment1_generalization_test_1()
 agent = QAgent("agent1", env.satKeys, env.sensorKeys)
 
 with open(file_prefix+'.pkl', 'rb') as f:
