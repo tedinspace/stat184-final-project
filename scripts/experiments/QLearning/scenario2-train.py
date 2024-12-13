@@ -1,24 +1,21 @@
-from SSN_RL.scenarioBuilder.scenarios import ToyEnvironment1,ToyEnvironment1_generalization_test_1
+from SSN_RL.scenarioBuilder.scenarios import Scenario2Environment, ToyEnvironment1
+import dill
 from SSN_RL.agent.QAgent import QAgent
 from SSN_RL.environment.rewards import reward_v1
+import datetime
 import matplotlib.pyplot as plt
 from SSN_RL.utils.time import hrsAfterEpoch
-import datetime
-import dill
+import numpy as np
+
 
 start = datetime.datetime.now()
-file_prefix = './scripts/experiments/QLearning/ql_toy1_v2'
+file_prefix = './scripts/experiments/QLearning/scenario2_v2'
 
-EPISODES = 2
+EPISODES = 2500
 
 
-env = ToyEnvironment1_generalization_test_1()
+env = Scenario2Environment()
 agent = QAgent("agent1", env.satKeys, env.sensorKeys)
-
-with open(file_prefix+'.pkl', 'rb') as f:
-    loaded_qTable = dill.load(f)
-    agent.qTable = loaded_qTable
-
 
 
 for episode in range(EPISODES):
@@ -30,10 +27,12 @@ for episode in range(EPISODES):
     state = agent.encodeState(t, stateCat)
     state_disc = agent.discretizeState(state)
 
-
     while not Done:
         # take actions
-        action, actions_decoded, action_disc = agent.decide_on_policy(t, events, stateCat)
+        action, actions_decoded, action_disc = agent.decide(t, events, stateCat)
+
+        #print(state_disc)
+        #print(action_disc)
 
         # get reward
         reward = reward_v1(t, events, stateCat, agent.agentID, agent.sat2idx)
@@ -47,6 +46,7 @@ for episode in range(EPISODES):
         
 
         agent.updateQTable(state_disc, action_disc, reward, next_state_disc)
+                
 
         state = next_state
         state_disc = next_state_disc
@@ -58,10 +58,15 @@ for episode in range(EPISODES):
         print(f"Episode {episode + 1}/{EPISODES}, Total Reward: {total_reward}, Epsilon: {agent.eps_threshold:.4f}")
 
 
+env.debug_ec.display()
 print('Total time:',str((datetime.datetime.now() - start).total_seconds()/60), 'mins')
-print("REWARD "+str(total_reward))
+print(total_reward)
 
-# - - - - - - - - - - - - - - - - SCENARIO VISUALIZATION  - - - - - - - - - - - - - - - -
+
+#print("NOT SAVING FILE")
+with open(file_prefix+".pkl", 'wb') as f:
+    dill.dump(agent.qTable, f)
+
 
 env.debug_ec.display()
 nManuevers = 0
@@ -70,17 +75,25 @@ for satKey in env.satTruth:
 print("actual unique maneuvers: "+str(nManuevers))
 print("scenario length "+str(env.sConfigs.scenarioLengthHours))
 
-fig, ax = plt.subplots()
-colors = {
-    'MUOS1': 'blue', 
-    'MUOS2': 'red',
-    "MUOS3": 'orange', 
-    "MUOS4": 'green',
-    "MUOS5": 'purple', 
-    'AEHF 1 (USA 214)': 'red', 
-    'AEHF 2 (USA 235)': 'blue'
 
-}
+
+fig, ax = plt.subplots()
+
+
+def string_to_color(s):
+
+    np.random.seed(len(s))  # Set the seed to ensure consistency for the same string
+    
+    return np.random.rand(3,) 
+c = ["black", "#29A634", "#D1980B", "#D33D17", "#9D3F9D", "#00A396", "#DB2C6F", "#8EB125", "#946638", "#7961DB"]
+colors = {}
+for i in range(len(env.satKeys)):
+    colors[env.satKeys[i]]=c[i]
+
+
+
+
+
 
 sEpoch = env.sConfigs.scenarioEpoch
 

@@ -61,7 +61,6 @@ for event in env.debug_uniqueManeuverDetections:
     ax.axvline(x=hrsAfterEpoch(sEpoch,event.arrivalTime), color=colors[event.satID], linestyle='-.', linewidth=2)
 
 
-plt.title('Plotted Results of Randomized Actions')
 plt.ylabel('Executed Schedule at Sensor (MHR)')
 plt.xlabel('time [hours after scenario epoch]')
 plt.show()

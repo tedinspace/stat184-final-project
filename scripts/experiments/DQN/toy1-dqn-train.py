@@ -5,12 +5,12 @@ from SSN_RL.environment.rewards import reward_v1
 import datetime
 
 
-file_prefix = './scripts/experiments/DQN/dqn_toy1_v1'
+file_prefix = './scripts/experiments/DQN/dqn_toy1_v3'
 #print("FILE SAVE IS COMMENTED OUT--- WARNING")
 env = ToyEnvironment1()
 
 agent = DQNAgent("agent1", env.satKeys,env.sensorKeys)
-num_episodes = 200
+num_episodes = 2500
 
 saved_rewards = []
 saved_eps = []

@@ -57,8 +57,4 @@ for episode in range(EPISODES):
 print('Total time:',str((datetime.datetime.now() - start).total_seconds()/60), 'mins')
 print(total_reward)
 
-#print("NOT SAVING FILE")
-with open(file_prefix+".pkl", 'wb') as f:
-    dill.dump(agent.qTable, f)
-
 

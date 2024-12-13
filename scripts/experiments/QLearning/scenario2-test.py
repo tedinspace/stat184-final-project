@@ -1,18 +1,19 @@
-from SSN_RL.scenarioBuilder.scenarios import ToyEnvironment1,ToyEnvironment1_generalization_test_1
+from SSN_RL.scenarioBuilder.scenarios import Scenario2Environment_generalization_test,Scenario2Environment
 from SSN_RL.agent.QAgent import QAgent
 from SSN_RL.environment.rewards import reward_v1
 import matplotlib.pyplot as plt
 from SSN_RL.utils.time import hrsAfterEpoch
 import datetime
 import dill
+import numpy as np
 
 start = datetime.datetime.now()
-file_prefix = './scripts/experiments/QLearning/ql_toy1_v2'
+file_prefix = './scripts/experiments/QLearning/scenario2_v2'
 
 EPISODES = 2
 
 
-env = ToyEnvironment1_generalization_test_1()
+env = Scenario2Environment_generalization_test()
 agent = QAgent("agent1", env.satKeys, env.sensorKeys)
 
 with open(file_prefix+'.pkl', 'rb') as f:
@@ -70,17 +71,25 @@ for satKey in env.satTruth:
 print("actual unique maneuvers: "+str(nManuevers))
 print("scenario length "+str(env.sConfigs.scenarioLengthHours))
 
-fig, ax = plt.subplots()
-colors = {
-    'MUOS1': 'blue', 
-    'MUOS2': 'red',
-    "MUOS3": 'orange', 
-    "MUOS4": 'green',
-    "MUOS5": 'purple', 
-    'AEHF 1 (USA 214)': 'red', 
-    'AEHF 2 (USA 235)': 'blue'
 
-}
+
+fig, ax = plt.subplots()
+
+
+def string_to_color(s):
+
+    np.random.seed(len(s))  # Set the seed to ensure consistency for the same string
+    
+    return np.random.rand(3,) 
+c = ["black", "#29A634", "#D1980B", "#D33D17", "#9D3F9D", "#00A396", "#DB2C6F", "#8EB125", "#946638", "#7961DB"]
+colors = {}
+for i in range(len(env.satKeys)):
+    colors[env.satKeys[i]]=c[i]
+
+
+
+
+
 
 sEpoch = env.sConfigs.scenarioEpoch
 

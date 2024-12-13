@@ -39,7 +39,7 @@ class DQNAgent():
 
 
     '''
-    def __init__(self,agentID, assigned_sats, assigned_sensors, LR = 1e-3, mem_size=100000, batch_size = 50, gamma = 0.99, epsilon=1, epsilon_dec=.999, epsilon_min=0.05):
+    def __init__(self,agentID, assigned_sats, assigned_sensors, LR = 1e-3, mem_size=100000, batch_size = 10, gamma = 0.99, epsilon=1, epsilon_dec=.999, epsilon_min=0.05):
         self.agentID = agentID
         self.num_sats = len(assigned_sats)
         self.num_sensors = len(assigned_sensors)
@@ -108,19 +108,24 @@ class DQNAgent():
         lastSeen, last_tasked_mins_ago = self.getLastSeenLastTasked(t, stateCat)
 
         if np.random.rand() < self.eps_threshold:
-            # - random
-            #actions = torch.from_numpy(self.action_space.sample())
-            bool_arr = ((last_tasked_mins_ago > 15) | (last_tasked_mins_ago == -1)) & (lastSeen > 30)
-            actions = np.ones(self.num_sats)*-1
-            
-            actions[bool_arr] = np.random.randint(0, self.num_sensors, size=np.sum(bool_arr))
-            #if np.random.rand()< .2:
-            #actions = randomAction(self.num_sensors, self.num_sats)
+            if np.random.rand() < .9:
+                # - random
+                #actions = torch.from_numpy(self.action_space.sample())
+                bool_arr = ((last_tasked_mins_ago > 15) | (last_tasked_mins_ago == -1)) & (lastSeen > 30)
+                actions = np.ones(self.num_sats)*-1
+                
+                actions[bool_arr] = np.random.randint(0, self.num_sensors, size=np.sum(bool_arr))
+                #if np.random.rand()< .2:
+                #actions = randomAction(self.num_sensors, self.num_sats)
+                #action_spec = actions
+                #actions = torch.from_numpy(actions)
+            else:
+                actions = randomAction(self.num_sensors, self.num_sats)
             action_spec = actions
             actions = torch.from_numpy(actions)
 
         else:
-            actions = self.decide_on_policy(np.concatenate((lastSeen, last_tasked_mins_ago)))
+            actions = self.decide_on_policy_inner(np.concatenate((lastSeen, last_tasked_mins_ago)))
             action_spec =  np.round(actions.numpy()).astype(int)
         
 
@@ -132,13 +137,13 @@ class DQNAgent():
         # return encoded and decoded actions
         return actions, {self.agentID: decodeActions(action_spec, self.assigned_sats, self.assigned_sensors)}
 
-    def decide_testing(self,t, events, stateCat):
+    def decide_on_policy(self,t, events, stateCat):
         lastSeen, last_tasked_mins_ago = self.getLastSeenLastTasked(t, stateCat)
-        actions = self.decide_on_policy(np.concatenate((lastSeen, last_tasked_mins_ago)))
+        actions = self.decide_on_policy_inner(np.concatenate((lastSeen, last_tasked_mins_ago)))
         action_spec =  np.round(actions.numpy()).astype(int)
         return actions, {self.agentID: decodeActions(action_spec, self.assigned_sats, self.assigned_sensors)}
 
-    def decide_on_policy(self, state):
+    def decide_on_policy_inner(self, state):
         '''handles agents decision; epsilon greedy'''
         # select action with highest q-value
         state = torch.FloatTensor(np.array(state).reshape(1,-1)).to(DEVICE)

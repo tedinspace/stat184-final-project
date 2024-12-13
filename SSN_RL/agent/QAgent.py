@@ -23,7 +23,7 @@ class QAgent:
         self.gamma = gamma
         self.alpha = alpha
 
-        self.qTable = defaultdict( lambda: np.zeros((2, 2)))
+        self.qTable = defaultdict( lambda: np.zeros((self.num_sensors+1,) *self.num_sats ))
 
         self.last_tasked = np.ones(self.num_sats)*1e8
 
@@ -85,7 +85,12 @@ class QAgent:
         if random.random() <  self.eps_threshold :
             #actions = randomAction(self.num_sensors, self.num_sats)
             #actions_tuple = tuple(actions+1)
-            actions, actions_decoded, actions_tuple = self.decide_heuristic(t, events, stateCat)
+            if random.random() < .5:
+                actions, _, actions_tuple = self.decide_heuristic(t, events, stateCat)
+            else:
+                actions = randomAction(self.num_sensors, self.num_sats)
+                actions_tuple = tuple(actions+1)
+
 
         else:
             state = self.discretizeState(self.encodeState(t, stateCat))
@@ -99,6 +104,7 @@ class QAgent:
         # update task records 
         self.last_tasked[ actions != -1] = np.ones(len(self.last_tasked[ actions != -1]))*t.tt
         # return encoded and decoded actions
+        
         return actions, {self.agentID: decodeActions(actions, self.assigned_sats, self.assigned_sensors)}, actions_tuple
 
     def updateQTable (self, state, action, reward, nextState=None):

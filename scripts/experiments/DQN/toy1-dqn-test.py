@@ -21,7 +21,7 @@ output_dim = nSats
 
 
 agent = DQNAgent("agent1", env.satKeys,env.sensorKeys)
-agent.model.load_state_dict(torch.load("./scripts/experiments/DQN/dqn_toy1_v1.pth", weights_only=True))
+agent.model.load_state_dict(torch.load("./scripts/experiments/DQN/dqn_toy1_v3.pth", weights_only=True))
 
 
 
@@ -37,9 +37,8 @@ for episode in range(TS.num_episodes):
     total_reward = 0
     t, events, stateCat, Done = env.reset(deltaT=60*5)
     state = agent.encodeState(t, stateCat)
-    i = 0
     while not Done:
-        action, actions_decoded = agent.decide_testing(t, events, stateCat)
+        action, actions_decoded = agent.decide_on_policy(t, events, stateCat)
         
 
         reward = reward_v1(t, events, stateCat, agent.agentID, agent.sat2idx)
@@ -53,9 +52,7 @@ for episode in range(TS.num_episodes):
 
         state = next_state
         total_reward += reward
-        i+=1
     
-    print(i)
     # decay epsilon 
     epsilon = max(TS.min_epsilon, epsilon * TS.epsilon_decay)
     if (episode + 1) % 10 == 0:
@@ -98,7 +95,6 @@ for event in env.debug_uniqueManeuverDetections:
     ax.axvline(x=hrsAfterEpoch(sEpoch,event.arrivalTime), color=colors[event.satID], linestyle='-.', linewidth=2)
 
 
-plt.title('Plotted Results of Randomized Actions')
 plt.ylabel('Executed Schedule at Sensor (MHR)')
 plt.xlabel('time [hours after scenario epoch]')
 plt.show()

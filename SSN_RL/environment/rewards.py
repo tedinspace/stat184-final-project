@@ -17,7 +17,7 @@ def reward_v1(t, events, stateCatalog, agentID, sat2idx):
             elif event.type == SensorResponse.COMPLETED_NOMINAL:
                 rewardOrCost += 2
             elif event.type == SensorResponse.COMPLETED_MANEUVER:
-                rewardOrCost += 40
+                rewardOrCost += 10
     
     
     lastSeen = np.array([stateCatalog.lastSeen_mins(t, sat) for sat in sat2idx.keys()])
