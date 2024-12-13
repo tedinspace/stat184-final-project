@@ -16,7 +16,7 @@ file_prefix = './scripts/experiments/QLearning/ql_toy1_v2'
 
 RESULTS = {}
 
-EPISODES = 1000
+EPISODES = 100
 
 
 env = ToyEnvironment1_generalization_test_1()

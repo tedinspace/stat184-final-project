@@ -8,10 +8,11 @@ from SSN_RL.agent.functions.decode import decodeActions
 from SSN_RL.environment.rewards import reward_v1
 import matplotlib.pyplot as plt
 from SSN_RL.utils.time import hrsAfterEpoch
-
+from SSN_RL.environment.Sensor import SensorResponse
+import json
 import numpy as np
 
-n_runs = 1000
+n_runs = 100
 env = ToyEnvironment1()
 
 satKeys = env.satKeys
@@ -26,23 +27,30 @@ output_dim = nSats
 agent = DQNAgent("agent1", env.satKeys,env.sensorKeys)
 agent.model.load_state_dict(torch.load("./scripts/experiments/DQN/dqn_toy1_v1.pth", weights_only=True))
 
+file_prefix = './scripts/experiments/DQN/dqn_toy1_comp_gen'
 
+RESULTS = {}
 
 agentID = "agent1"
 
 
 DQN_rewards = []
 
-
+REWARDS = []
+COMPLETED_TASKS = []
+MAN_DET = []
+DROPPED_SCHED = []
+INVALID_1 = []
+INVALID_2 = []
 sat2idx = {sat: idx for idx, sat in enumerate(satKeys)}
 for episode in range(n_runs):
     total_reward = 0
-    t, events, stateCat, Done = env.reset()
+    t, events, stateCat, Done = env.reset(deltaT=5*60)
     state = encode_basic_v1(t, events, stateCat, agentID, sat2idx)
     state = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
     while not Done:
         #action = randomAction(nSensors, nSats)
-        action = agent.decide_trained(state)
+        action = agent.decide_on_policy_inner(state)
         action_spec =  np.round(action.numpy()).astype(int)
         t, events, stateCat, Done = env.step({agent.agentID: decodeActions(action_spec, agent.assigned_sats, agent.assigned_sensors)})
         next_state = encode_basic_v1(t, events, stateCat, agent.agentID, agent.sat2idx)
@@ -52,72 +60,24 @@ for episode in range(n_runs):
 
         state = next_state
         total_reward += reward
-    DQN_rewards.append(total_reward)
-    
-     
-DO_NOTHING_rewards =[]
-for episode in range(n_runs):
-    total_reward = 0
-    t, events, stateCat, Done = env.reset()
-    state = encode_basic_v1(t, events, stateCat, agentID, sat2idx)
-    while not Done:
-        action = noAction(nSats)
-        t, events, stateCat, Done = env.step({agent.agentID: decodeActions(action, agent.assigned_sats, agent.assigned_sensors)})
-        next_state = encode_basic_v1(t, events, stateCat, agent.agentID, agent.sat2idx)
-        
-        #next_state = torch.tensor(next_state, dtype=torch.float32).unsqueeze(0) 
-        reward =  reward_v1(t, events, stateCat, agent.agentID, agent.sat2idx)
+    REWARDS.append(float(total_reward))
+    COMPLETED_TASKS.append(float(env.debug_ec.eventCounts[SensorResponse.COMPLETED_MANEUVER]+ env.debug_ec.eventCounts[SensorResponse.COMPLETED_NOMINAL]))
+    DROPPED_SCHED.append(float(env.debug_ec.eventCounts[SensorResponse.DROPPED_SCHEDULING]))
+    MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/2))
 
-        state = next_state
-        total_reward += reward
-    DO_NOTHING_rewards.append(total_reward)
+    INVALID_1.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID]))
+    INVALID_2.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID_TIME]))
 
-RANDOM_rewards =[]
-for episode in range(n_runs):
-    total_reward = 0
-    t, events, stateCat, Done = env.reset()
-    state = encode_basic_v1(t, events, stateCat, agentID, sat2idx)
-    while not Done:
-        action = randomAction(nSensors, nSats)
-        t, events, stateCat, Done = env.step({agent.agentID: decodeActions(action, agent.assigned_sats, agent.assigned_sensors)})
-        next_state = encode_basic_v1(t, events, stateCat, agent.agentID, agent.sat2idx)
-        
-        #next_state = torch.tensor(next_state, dtype=torch.float32).unsqueeze(0) 
-        reward =  reward_v1(t, events, stateCat, agent.agentID, agent.sat2idx)
-
-        state = next_state
-        total_reward += reward
-    RANDOM_rewards.append(total_reward)
+RESULTS["DQN"]={
+    "rewards": REWARDS,
+    "completed": COMPLETED_TASKS, 
+    "dropped": DROPPED_SCHED,
+    "man_det": MAN_DET,
+    "invalid": INVALID_1, 
+    "invalid_time": INVALID_2
+}
 
 
-#print(RANDOM_rewards)
-#print(DO_NOTHING_rewards)
-#print(DQN_rewards)   
 
-data = [RANDOM_rewards, DO_NOTHING_rewards, DQN_rewards]
-
-# Create a single box plot
-colors = ['#69b3a2', '#ff9999', '#6699cc']
-
-# Create the box plot with customized colors
-boxplot = plt.boxplot(data, patch_artist=True, 
-            boxprops=dict(facecolor=colors[0], color='black'), 
-            whiskerprops=dict(color='black'),
-            capprops=dict(color='black'),
-            flierprops=dict(markerfacecolor='red', marker='o'),
-            medianprops=dict(color='black'))
-
-for i in range(len(boxplot['boxes'])):
-    boxplot['boxes'][i].set_facecolor(colors[i])
-
-# Set titles and labels
-plt.title('Side-by-Side Box Plots', fontsize=16, fontweight='bold')
-plt.xlabel('Datasets', fontsize=12)
-plt.ylabel('Value', fontsize=12)
-
-# Customize the x-axis labels
-plt.xticks([1, 2, 3], ['Random Policy', 'Do Nothing Policy', 'DQN'])
-
-# Show the plot
-plt.tight_layout()
-plt.show()
+with open(file_prefix+"_comp_gen.json", 'w') as f:
+    json.dump(RESULTS, f)

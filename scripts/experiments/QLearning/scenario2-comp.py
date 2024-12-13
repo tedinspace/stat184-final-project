@@ -25,10 +25,12 @@ with open(file_prefix+'.pkl', 'rb') as f:
     loaded_qTable = dill.load(f)
     agent.qTable = loaded_qTable
 
-Q_REWARDS = []
-Q_COMPLETED_TASKS = []
-Q_MAN_DET = []
-Q_DROPPED_SCHED = []
+REWARDS = []
+COMPLETED_TASKS = []
+MAN_DET = []
+DROPPED_SCHED = []
+INVALID_1 = []
+INVALID_2 = []
 for episode in range(EPISODES):
 
     total_reward = 0
@@ -61,20 +63,24 @@ for episode in range(EPISODES):
         total_reward += reward
         
 
-    Q_REWARDS.append(float(total_reward))
-    Q_COMPLETED_TASKS.append(float(env.debug_ec.eventCounts[SensorResponse.COMPLETED_MANEUVER]+ env.debug_ec.eventCounts[SensorResponse.COMPLETED_NOMINAL]))
-    Q_MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/2))
-    Q_DROPPED_SCHED.append(float(env.debug_ec.eventCounts[SensorResponse.DROPPED_SCHEDULING]))
+    REWARDS.append(float(total_reward))
+    COMPLETED_TASKS.append(float(env.debug_ec.eventCounts[SensorResponse.COMPLETED_MANEUVER]+ env.debug_ec.eventCounts[SensorResponse.COMPLETED_NOMINAL]))
+    MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/2))
+    DROPPED_SCHED.append(float(env.debug_ec.eventCounts[SensorResponse.DROPPED_SCHEDULING]))
+    INVALID_1.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID]))
+    INVALID_2.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID_TIME]))
 
     if (episode + 1) % 10 == 0:
         print(f"Episode {episode + 1}/{EPISODES}, Total Reward: {total_reward}")
 
 
 RESULTS["Q"]={
-    "rewards": Q_REWARDS,
-    "completed": Q_COMPLETED_TASKS, 
-    "dropped": Q_DROPPED_SCHED,
-    "man_det": Q_MAN_DET,
+    "rewards": REWARDS,
+    "completed": COMPLETED_TASKS, 
+    "dropped": DROPPED_SCHED,
+    "man_det": MAN_DET,
+    "invalid": INVALID_1, 
+    "invalid_time": INVALID_2
 }
 
 agent = HeuristicAgent("agent1", env.satKeys,env.sensorKeys)
@@ -83,6 +89,8 @@ REWARDS = []
 COMPLETED_TASKS = []
 MAN_DET = []
 DROPPED_SCHED = []
+INVALID_1 = []
+INVALID_2 = []
 for episode in range(EPISODES):
 
     total_reward = 0
@@ -101,7 +109,8 @@ for episode in range(EPISODES):
     COMPLETED_TASKS.append(float(env.debug_ec.eventCounts[SensorResponse.COMPLETED_MANEUVER]+ env.debug_ec.eventCounts[SensorResponse.COMPLETED_NOMINAL]))
     MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/2))
     DROPPED_SCHED.append(float(env.debug_ec.eventCounts[SensorResponse.DROPPED_SCHEDULING]))
-
+    INVALID_1.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID]))
+    INVALID_2.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID_TIME]))
     if (episode + 1) % 10 == 0:
         print(f"Episode {episode + 1}/{EPISODES}, Total Reward: {total_reward}")
 
@@ -111,6 +120,8 @@ RESULTS["heuristic"]={
     "completed": COMPLETED_TASKS, 
     "dropped": DROPPED_SCHED,
     "man_det": MAN_DET,
+    "invalid": INVALID_1, 
+    "invalid_time": INVALID_2
 }
 
 
@@ -118,6 +129,8 @@ REWARDS = []
 COMPLETED_TASKS = []
 MAN_DET = []
 DROPPED_SCHED = []
+INVALID_1 = []
+INVALID_2 = []
 for episode in range(EPISODES):
 
     total_reward = 0
@@ -135,7 +148,8 @@ for episode in range(EPISODES):
     COMPLETED_TASKS.append(float(env.debug_ec.eventCounts[SensorResponse.COMPLETED_MANEUVER]+ env.debug_ec.eventCounts[SensorResponse.COMPLETED_NOMINAL]))
     MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/2))
     DROPPED_SCHED.append(float(env.debug_ec.eventCounts[SensorResponse.DROPPED_SCHEDULING]))
-
+    INVALID_1.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID]))
+    INVALID_2.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID_TIME]))
     if (episode + 1) % 10 == 0:
         print(f"Episode {episode + 1}/{EPISODES}, Total Reward: {total_reward}")
 
@@ -145,12 +159,16 @@ RESULTS["random"]={
     "completed": COMPLETED_TASKS, 
     "dropped": DROPPED_SCHED,
     "man_det": MAN_DET,
+    "invalid": INVALID_1, 
+    "invalid_time": INVALID_2
 }
 
 REWARDS = []
 COMPLETED_TASKS = []
 MAN_DET = []
 DROPPED_SCHED = []
+INVALID_1 = []
+INVALID_2 = []
 for episode in range(EPISODES):
 
     total_reward = 0
@@ -168,6 +186,8 @@ for episode in range(EPISODES):
     COMPLETED_TASKS.append(float(env.debug_ec.eventCounts[SensorResponse.COMPLETED_MANEUVER]+ env.debug_ec.eventCounts[SensorResponse.COMPLETED_NOMINAL]))
     MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/2))
     DROPPED_SCHED.append(float(env.debug_ec.eventCounts[SensorResponse.DROPPED_SCHEDULING]))
+    INVALID_1.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID]))
+    INVALID_2.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID_TIME]))
 
     if (episode + 1) % 10 == 0:
         print(f"Episode {episode + 1}/{EPISODES}, Total Reward: {total_reward}")
@@ -178,6 +198,8 @@ RESULTS["no_action"]={
     "completed": COMPLETED_TASKS, 
     "dropped": DROPPED_SCHED,
     "man_det": MAN_DET,
+    "invalid": INVALID_1, 
+    "invalid_time": INVALID_2
 }
 
 

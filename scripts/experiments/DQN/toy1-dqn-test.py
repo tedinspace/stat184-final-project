@@ -21,7 +21,7 @@ output_dim = nSats
 
 
 agent = DQNAgent("agent1", env.satKeys,env.sensorKeys)
-agent.model.load_state_dict(torch.load("./scripts/experiments/DQN/dqn_toy1_v3.pth", weights_only=True))
+agent.model.load_state_dict(torch.load("./scripts/experiments/DQN/dqn_toy1_v1.pth", weights_only=True))
 
 
 
