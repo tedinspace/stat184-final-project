@@ -2,43 +2,28 @@
 
 ## Structure
 
+```
 .
-
-├── SSN_RL                              # Core Python Libarary 
-
+├── SSN_RL                              # Core Python Library 
 │   ├── agent                           # - Agent classes, algorithms, functions
-
-│   ├── debug                           # - logger for debugging and counting events
-
+│   ├── debug                           # - Logger for debugging and counting events
 │   ├── environment                     # - Environment classes: Satellite, Sensors, etc.
-
-│   ├── scenarioBuilder                 # - Functions and classes for building scnearios
-
-│   └──utils                            # - misc utilities
-
+│   ├── scenarioBuilder                 # - Functions and classes for building scenarios
+│   └── utils                            # - Misc utilities
 ├── data                                # 
-
 │   └── geo_catalog_14Nov2024.txt       # GEO Catalog from 11/14/2024 
-
 └── scripts                             # Test, Training, Plotting, Drafting 
-
     ├── drafts                          # 
-
     ├── experiments                     # All Experiments
-
     │   ├── DQN                         # - DQN training and testing scripts
-
     │   ├── Heuristic                   # - Heuristic algorithm testing script
-
     │   ├── Linear                      # - Linear Q-Learning training and testing scripts
-
     │   ├── QLearning                   # - Q-Table training and testing scripts
-
-    |   ├── QTable                      # - Q-Table first draft
-
-    │   └── plots                       # - plot generation and test results
-    
+    │   ├── QTable                      # - Q-Table first draft
+    │   └── plots                       # - Plot generation and test results
     └── tests                           # Tests for Environment
+```
+
 
 ## Developer Environment Setup 
 
