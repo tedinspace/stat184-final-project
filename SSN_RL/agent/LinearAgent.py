@@ -109,12 +109,14 @@ class LinearQAgent:
         actions = np.zeros(self.num_sats, dtype=int)
         
         if np.random.random() < self.eps_threshold:
+            
             # Exploration: Use heuristic-based random actions
             bool_arr = ((current_state[self.num_sats:] > 15) | 
                        (current_state[self.num_sats:] == -1)) & (current_state[:self.num_sats] > 30)
             actions = np.ones(self.num_sats, dtype=int) * -1
             actions[bool_arr] = np.random.randint(0, self.num_sensors, size=np.sum(bool_arr))
         else:
+            
             # Exploitation: Choose best actions based on Q-values
             for sat_idx in range(self.num_sats):
                 q_values = [self._get_q_value(features, sat_idx, a-1) 

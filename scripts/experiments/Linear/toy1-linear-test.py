@@ -1,5 +1,8 @@
 from SSN_RL.scenarioBuilder.scenarios import ToyEnvironment1, ToyEnvironment1_generalization_test_1
 from SSN_RL.agent.LinearAgent import LinearQAgent
+from SSN_RL.environment.Sensor import SensorResponse
+import json
+
 from SSN_RL.environment.rewards import reward_v1
 import numpy as np
 import datetime
@@ -7,12 +10,12 @@ import dill
 import matplotlib.pyplot as plt
 from SSN_RL.utils.time import hrsAfterEpoch
 
-EPISODES = 1
+EPISODES = 100
 file_prefix = './scripts/experiments/Linear/linear_toy1_v1'
 start = datetime.datetime.now()
 
 
-env = ToyEnvironment1()
+env = ToyEnvironment1_generalization_test_1()
 agent = LinearQAgent(
     agentID="agent1",
     assigned_sats=env.satKeys,
@@ -33,8 +36,14 @@ with open(file_prefix+'.pkl', 'rb') as f:
     #agent.epsilon_dec = loaded_data['hyperparameters']['epsilon_dec']
     #agent.epsilon_min = loaded_data['hyperparameters']['epsilon_min']
 
+RESULTS = {}
 
-
+REWARDS = []
+COMPLETED_TASKS = []
+MAN_DET = []
+DROPPED_SCHED = []
+INVALID_1 = []
+INVALID_2 = []
 for episode in range(EPISODES):
     total_reward = 0
     steps = 0
@@ -42,6 +51,7 @@ for episode in range(EPISODES):
     t, events, stateCat, Done = env.reset(deltaT=5*60)
     agent.reset()
     agent.epsilon=0
+    agent.eps_threshold=0
 
     state = agent.encodeState(t, stateCat)
     
@@ -53,8 +63,25 @@ for episode in range(EPISODES):
         
         t, events, stateCat, Done = env.step(actions_decoded)
         steps += 1
-    
+    REWARDS.append(float(total_reward))
+    COMPLETED_TASKS.append(float(env.debug_ec.eventCounts[SensorResponse.COMPLETED_MANEUVER]+ env.debug_ec.eventCounts[SensorResponse.COMPLETED_NOMINAL]))
+    DROPPED_SCHED.append(float(env.debug_ec.eventCounts[SensorResponse.DROPPED_SCHEDULING]))
+    MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/2))
 
+    INVALID_1.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID]))
+    INVALID_2.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID_TIME]))
+
+RESULTS["LQ"]={
+    "rewards": REWARDS,
+    "completed": COMPLETED_TASKS, 
+    "dropped": DROPPED_SCHED,
+    "man_det": MAN_DET,
+    "invalid": INVALID_1, 
+    "invalid_time": INVALID_2
+}
+
+with open(file_prefix+"_comp_gen.json", 'w') as f:
+    json.dump(RESULTS, f)
 
 # - - - - - - - - - - - - - - - - SCENARIO VISUALIZATION  - - - - - - - - - - - - - - - -
 

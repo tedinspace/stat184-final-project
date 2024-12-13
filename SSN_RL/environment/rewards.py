@@ -24,7 +24,6 @@ def reward_v1(t, events, stateCatalog, agentID, sat2idx):
     
     rewardOrCost -= np.sum(lastSeen > 90) * 2
     
-    
     return rewardOrCost
 
 
