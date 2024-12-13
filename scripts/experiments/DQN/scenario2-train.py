@@ -11,11 +11,11 @@ import numpy as np
 start = datetime.datetime.now()
 file_prefix = './scripts/experiments/DQN/dqn_scenario2_1'
 
-EPISODES = 100
+EPISODES = 1000
 
 
 env = Scenario2Environment()
-agent = DQNAgent("agent1", env.satKeys,env.sensorKeys,  epsilon=2)
+agent = DQNAgent("agent1", env.satKeys,env.sensorKeys,  epsilon=1, epsilon_min=.3)
 
 start = datetime.datetime.now()
 

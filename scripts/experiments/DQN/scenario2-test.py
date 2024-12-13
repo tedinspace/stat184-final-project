@@ -67,7 +67,7 @@ for satKey in env.satTruth:
     nManuevers+= len(env.satTruth[satKey].maneuverList)
 print("actual unique maneuvers: "+str(nManuevers))
 print("scenario length "+str(env.sConfigs.scenarioLengthHours))
-
+print(total_reward)
 
 
 fig, ax = plt.subplots()
