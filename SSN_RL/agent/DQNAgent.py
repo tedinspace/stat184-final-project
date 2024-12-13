@@ -108,19 +108,16 @@ class DQNAgent():
         lastSeen, last_tasked_mins_ago = self.getLastSeenLastTasked(t, stateCat)
 
         if np.random.rand() < self.eps_threshold:
-            if np.random.rand() < .9:
-                # - random
-                #actions = torch.from_numpy(self.action_space.sample())
-                bool_arr = ((last_tasked_mins_ago > 15) | (last_tasked_mins_ago == -1)) & (lastSeen > 30)
-                actions = np.ones(self.num_sats)*-1
-                
-                actions[bool_arr] = np.random.randint(0, self.num_sensors, size=np.sum(bool_arr))
-                #if np.random.rand()< .2:
-                #actions = randomAction(self.num_sensors, self.num_sats)
-                #action_spec = actions
-                #actions = torch.from_numpy(actions)
-            else:
-                actions = randomAction(self.num_sensors, self.num_sats)
+            # - random
+            #actions = torch.from_numpy(self.action_space.sample())
+            bool_arr = ((last_tasked_mins_ago > 15) | (last_tasked_mins_ago == -1)) & (lastSeen > 30)
+            actions = np.ones(self.num_sats)*-1
+            
+            actions[bool_arr] = np.random.randint(0, self.num_sensors, size=np.sum(bool_arr))
+            #if np.random.rand()< .2:
+            #actions = randomAction(self.num_sensors, self.num_sats)
+            #action_spec = actions
+            #actions = torch.from_numpy(actions)
             action_spec = actions
             actions = torch.from_numpy(actions)
 
