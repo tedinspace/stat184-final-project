@@ -16,12 +16,7 @@ file_prefix = './scripts/experiments/QLearning/ql_toy1_v2'
 
 RESULTS = {}
 
-<<<<<<< HEAD
 EPISODES = 100
-=======
-EPISODES = 1000
->>>>>>> chirag--linear_agent
-
 
 env = ToyEnvironment1_generalization_test_1()
 agent = QAgent("agent1", env.satKeys, env.sensorKeys)
@@ -67,7 +62,7 @@ for episode in range(EPISODES):
 
     Q_REWARDS.append(float(total_reward))
     Q_COMPLETED_TASKS.append(float(env.debug_ec.eventCounts[SensorResponse.COMPLETED_MANEUVER]+ env.debug_ec.eventCounts[SensorResponse.COMPLETED_NOMINAL]))
-    Q_MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/2))
+    Q_MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/env.countUniqueManeuvers()))
     Q_DROPPED_SCHED.append(float(env.debug_ec.eventCounts[SensorResponse.DROPPED_SCHEDULING]))
 
     if (episode + 1) % 10 == 0:
@@ -103,7 +98,7 @@ for episode in range(EPISODES):
 
     REWARDS.append(float(total_reward))
     COMPLETED_TASKS.append(float(env.debug_ec.eventCounts[SensorResponse.COMPLETED_MANEUVER]+ env.debug_ec.eventCounts[SensorResponse.COMPLETED_NOMINAL]))
-    MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/2))
+    MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/env.countUniqueManeuvers()))
     DROPPED_SCHED.append(float(env.debug_ec.eventCounts[SensorResponse.DROPPED_SCHEDULING]))
 
     if (episode + 1) % 10 == 0:
@@ -137,7 +132,7 @@ for episode in range(EPISODES):
 
     REWARDS.append(float(total_reward))
     COMPLETED_TASKS.append(float(env.debug_ec.eventCounts[SensorResponse.COMPLETED_MANEUVER]+ env.debug_ec.eventCounts[SensorResponse.COMPLETED_NOMINAL]))
-    MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/2))
+    MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/env.countUniqueManeuvers()))
     DROPPED_SCHED.append(float(env.debug_ec.eventCounts[SensorResponse.DROPPED_SCHEDULING]))
 
     if (episode + 1) % 10 == 0:
@@ -170,7 +165,7 @@ for episode in range(EPISODES):
 
     REWARDS.append(float(total_reward))
     COMPLETED_TASKS.append(float(env.debug_ec.eventCounts[SensorResponse.COMPLETED_MANEUVER]+ env.debug_ec.eventCounts[SensorResponse.COMPLETED_NOMINAL]))
-    MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/2))
+    MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/env.countUniqueManeuvers()))
     DROPPED_SCHED.append(float(env.debug_ec.eventCounts[SensorResponse.DROPPED_SCHEDULING]))
 
     if (episode + 1) % 10 == 0:

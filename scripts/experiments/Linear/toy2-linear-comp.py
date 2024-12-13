@@ -27,6 +27,7 @@ agent = LinearQAgent(
 )
 RESULTS = {}
 
+print(env.countUniqueManeuvers())
 
 REWARDS = []
 COMPLETED_TASKS = []
@@ -56,13 +57,13 @@ for episode in range(EPISODES):
     REWARDS.append(float(total_reward))
     COMPLETED_TASKS.append(float(env.debug_ec.eventCounts[SensorResponse.COMPLETED_MANEUVER]+ env.debug_ec.eventCounts[SensorResponse.COMPLETED_NOMINAL]))
     DROPPED_SCHED.append(float(env.debug_ec.eventCounts[SensorResponse.DROPPED_SCHEDULING]))
-    MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]))
+    MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/env.countUniqueManeuvers()))
 
     INVALID_1.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID]))
     INVALID_2.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID_TIME]))
     
 
-
+env.satTruth
 RESULTS["LQ"]={
     "rewards": REWARDS,
     "completed": COMPLETED_TASKS, 

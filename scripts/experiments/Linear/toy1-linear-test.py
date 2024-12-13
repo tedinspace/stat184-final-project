@@ -66,7 +66,7 @@ for episode in range(EPISODES):
     REWARDS.append(float(total_reward))
     COMPLETED_TASKS.append(float(env.debug_ec.eventCounts[SensorResponse.COMPLETED_MANEUVER]+ env.debug_ec.eventCounts[SensorResponse.COMPLETED_NOMINAL]))
     DROPPED_SCHED.append(float(env.debug_ec.eventCounts[SensorResponse.DROPPED_SCHEDULING]))
-    MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/2))
+    MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/env.countUniqueManeuvers()))
 
     INVALID_1.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID]))
     INVALID_2.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID_TIME]))

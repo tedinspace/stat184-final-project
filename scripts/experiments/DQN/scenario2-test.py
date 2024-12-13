@@ -1,5 +1,6 @@
 
 import torch
+from SSN_RL.environment.Sensor import SensorResponse
 from SSN_RL.scenarioBuilder.scenarios import Scenario2Environment, Scenario2Environment_generalization_test
 from SSN_RL.agent.TrainingSpecs import TrainingSpecs
 from SSN_RL.agent.DQNAgent import DQNAgent
@@ -8,6 +9,7 @@ from SSN_RL.environment.rewards import reward_v1
 import matplotlib.pyplot as plt
 from SSN_RL.utils.time import hrsAfterEpoch
 import datetime
+import json
 
 env = Scenario2Environment_generalization_test()
 
@@ -23,14 +25,21 @@ output_dim = nSats
 agent = DQNAgent("agent1", env.satKeys,env.sensorKeys)
 agent.model.load_state_dict(torch.load("./scripts/experiments/DQN/dqn_scenario2_1.pth", weights_only=True))
 
+file_prefix = './scripts/experiments/DQN/dqn_scen2'
 
 
 agentID = "agent1"
 sat2idx = {sat: idx for idx, sat in enumerate(satKeys)}
+RESULTS = {}
 
-
+REWARDS = []
+COMPLETED_TASKS = []
+MAN_DET = []
+DROPPED_SCHED = []
+INVALID_1 = []
+INVALID_2 = []
 TS = TrainingSpecs()
-TS.num_episodes=1
+TS.num_episodes=100
 epsilon = .1
 start = datetime.datetime.now()
 for episode in range(TS.num_episodes):
@@ -57,8 +66,24 @@ for episode in range(TS.num_episodes):
     epsilon = max(TS.min_epsilon, epsilon * TS.epsilon_decay)
     if (episode + 1) % 10 == 0:
         print(f"Episode {episode + 1}/{TS.num_episodes}, Total Reward: {total_reward}, Epsilon: {epsilon:.4f}")
-        
+    REWARDS.append(float(total_reward))
+    COMPLETED_TASKS.append(float(env.debug_ec.eventCounts[SensorResponse.COMPLETED_MANEUVER]+ env.debug_ec.eventCounts[SensorResponse.COMPLETED_NOMINAL]))
+    DROPPED_SCHED.append(float(env.debug_ec.eventCounts[SensorResponse.DROPPED_SCHEDULING]))
+    MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/env.countUniqueManeuvers()))
 
+    INVALID_1.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID]))
+    INVALID_2.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID_TIME]))
+        
+RESULTS["DQN"]={
+    "rewards": REWARDS,
+    "completed": COMPLETED_TASKS, 
+    "dropped": DROPPED_SCHED,
+    "man_det": MAN_DET,
+    "invalid": INVALID_1, 
+    "invalid_time": INVALID_2
+}
+with open(file_prefix+"_comp_gen.json", 'w') as f:
+    json.dump(RESULTS, f)
 # - - - - - - - - - - - - - - - - SCENARIO VISUALIZATION  - - - - - - - - - - - - - - - -
 
 env.debug_ec.display()

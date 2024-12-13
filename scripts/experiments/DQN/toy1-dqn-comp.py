@@ -13,7 +13,7 @@ import json
 import numpy as np
 
 n_runs = 100
-env = ToyEnvironment1()
+env = ToyEnvironment1_generalization_test_1()
 
 satKeys = env.satKeys
 sensorKeys = env.sensorKeys
@@ -63,7 +63,7 @@ for episode in range(n_runs):
     REWARDS.append(float(total_reward))
     COMPLETED_TASKS.append(float(env.debug_ec.eventCounts[SensorResponse.COMPLETED_MANEUVER]+ env.debug_ec.eventCounts[SensorResponse.COMPLETED_NOMINAL]))
     DROPPED_SCHED.append(float(env.debug_ec.eventCounts[SensorResponse.DROPPED_SCHEDULING]))
-    MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/2))
+    MAN_DET.append(float(env.debug_ec.eventCounts[SensorResponse.UNIQUE_MAN]/env.countUniqueManeuvers()))
 
     INVALID_1.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID]))
     INVALID_2.append(float(env.debug_ec.eventCounts[SensorResponse.INVALID_TIME]))

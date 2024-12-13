@@ -114,3 +114,8 @@ class Environment:
 
         return self.t, curratedEvents, self.stateCatalog, self.t > self.sConfigs.scenarioEnd
     
+    def countUniqueManeuvers(self):
+        m = 0
+        for sat in self.satTruth:
+            m+=self.satTruth[sat].nManeuvers
+        return m
