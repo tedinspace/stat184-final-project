@@ -1,5 +1,27 @@
 # Multi-Agent RL in Sensor Tasking for Space Domain Awareness
 
+## Structure
+
+.
+├── SSN_RL                              # Core Python Libarary 
+│   ├── agent                           # - Agent classes, algorithms, functions
+│   ├── debug                           # - logger for debugging and counting events
+│   ├── environment                     # - Environment classes: Satellite, Sensors, etc.
+│   ├── scenarioBuilder                 # - Functions and classes for building scnearios
+│   └──utils                            # - misc utilities
+├── data                                # 
+│   └── geo_catalog_14Nov2024.txt       # GEO Catalog from 11/14/2024 
+└── scripts                             # Test, Training, Plotting, Drafting 
+    ├── drafts                          # 
+    ├── experiments                     # All Experiments
+    │   ├── DQN                         # - DQN training and testing scripts
+    │   ├── Heuristic                   # - Heuristic algorithm testing script
+    │   ├── Linear                      # - Linear Q-Learning training and testing scripts
+    │   ├── QLearning                   # - Q-Table training and testing scripts
+    |   ├── QTable                      # - Q-Table first draft
+    │   └── plots                       # - plot generation and test results
+    └── tests                           # Tests for Environment
+
 ## Developer Environment Setup 
 
 1. create conda environment with micromamba 
@@ -26,15 +48,26 @@ Note: sometimes I need to run the following command prior to reactivating
 
 ## running files
 
-`python -m scripts.drafts.driver1`
+### Instructions
 
-`python -m scripts.drafts.driver2`
+Run files from here (.)
+
+python -m scripts.experiments.(Algorithm).(file_name)
+
+
+### test files
 
 `python -m scripts.tests.basic-maneuver-sim`
 
 `python -m scripts.tests.optical-sensing-test`
 
 `python -m scripts.experiments.DQN.toy1-dqn-train`
+
+### drafts 
+
+`python -m scripts.drafts.driver1`
+
+`python -m scripts.drafts.driver2`
 
 
 ## Library Documentation 
