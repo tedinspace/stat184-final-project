@@ -1,4 +1,4 @@
-# Multi-Agent RL in Sensor Tasking for Space Domain Awareness
+# Q-Learning for Sensor Tasking Decisions for Space Domain Awareness
 
 ## Structure
 
