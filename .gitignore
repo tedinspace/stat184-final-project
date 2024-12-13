@@ -29,6 +29,5 @@ q-draft.py
 q_network.pth
 
 satellite_tracking_analysis.png
-
 *.pkl
 *.pth

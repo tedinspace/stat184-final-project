@@ -16,7 +16,11 @@ file_prefix = './scripts/experiments/QLearning/ql_toy1_v2'
 
 RESULTS = {}
 
+<<<<<<< HEAD
 EPISODES = 100
+=======
+EPISODES = 1000
+>>>>>>> chirag--linear_agent
 
 
 env = ToyEnvironment1_generalization_test_1()
